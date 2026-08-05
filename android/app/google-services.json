@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "577791769210",
+    "project_id": "danamu",
+    "storage_bucket": "danamu.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577791769210:android:394113dd087d890e1a99c3",
+        "android_client_info": {
+          "package_name": "com.example.danamoo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtBWBdhZjUzpIQH8MLUtEP2FdSPmdnaDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577791769210:android:6b4c43762d6098f21a99c3",
+        "android_client_info": {
+          "package_name": "com.example.template_projek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtBWBdhZjUzpIQH8MLUtEP2FdSPmdnaDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
