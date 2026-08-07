@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../generated/assets.dart';
+import '../constants/constant.dart';
+
 class Utils {
   // ================= FORMATTER - CURRENCY =================
 
@@ -68,7 +71,7 @@ class Utils {
     try {
       return DateFormat('dd MMM yyyy', 'id_ID').format(date);
     } catch (e) {
-      return DateFormat('dd/MM/yyyy').format(date);
+      return DateFormat('dd MMM yyyy').format(date);
     }
   }
 
@@ -281,6 +284,137 @@ class Utils {
     );
   }
 
+  /// Show Success Dialog
+  static Future<void> showSuccessDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String? imagePath,
+    String? buttonText,
+    VoidCallback? onPressed,
+  }) {
+    return _showStatusDialog(
+      context,
+      title: title,
+      content: content,
+      imagePath: Assets.assetsIconsSuccess,
+      iconData: Icons.check_circle_outline,
+      iconColor: Colors.green,
+      buttonText: buttonText,
+      onPressed: onPressed,
+    );
+  }
+
+  /// Show Error Dialog
+  static Future<void> showErrorDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String? imagePath,
+    String? buttonText,
+    VoidCallback? onPressed,
+  }) {
+    return _showStatusDialog(
+      context,
+      title: title,
+      content: content,
+      imagePath: Assets.assetsIconsError,
+      iconData: Icons.error_outline,
+      iconColor: Colors.red,
+      buttonText: buttonText,
+      onPressed: onPressed,
+    );
+  }
+
+  /// Show Warning Dialog
+  static Future<void> showWarningDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String? imagePath,
+    String? buttonText,
+    VoidCallback? onPressed,
+  }) {
+    return _showStatusDialog(
+      context,
+      title: title,
+      content: content,
+      imagePath: Assets.assetsIconsWarning,
+      iconData: Icons.warning_amber_rounded,
+      iconColor: Colors.orange,
+      buttonText: buttonText,
+      onPressed: onPressed,
+    );
+  }
+
+  /// Internal Base Dialog for Status
+  static Future<void> _showStatusDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String? imagePath,
+    required IconData iconData,
+    required Color iconColor,
+    String? buttonText,
+    VoidCallback? onPressed,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (imagePath != null)
+                Image.asset(imagePath, width: 100, height: 100)
+              else
+                Icon(iconData, size: 80, color: iconColor),
+              const SizedBox(height: 20),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                content,
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: iconColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: onPressed ?? () => Navigator.pop(context),
+                  child: Text(
+                    buttonText ?? "OK",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Show Confirmation Dialog
   static Future<bool?> showConfirmDialog(
     BuildContext context, {
@@ -333,6 +467,60 @@ class Utils {
         ),
       ),
     );
+  }
+
+  static Future<void> showAutoDismissDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    Duration duration = const Duration(seconds: 2),
+    String? imagePath,
+    IconData iconData = Icons.check_circle,
+    Color iconColor = Colors.green,
+    VoidCallback? onDismissed,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (imagePath != null)
+                  Image.asset(imagePath, width: 100, height: 100)
+                else
+                  Icon(iconData, color: iconColor, size: 64),
+                const SizedBox(height: 16),
+                Text(title, style: Constant.h3),
+                const SizedBox(height: 8),
+                Text(
+                  content,
+                  textAlign: TextAlign.center,
+                  style: Constant.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Tutup dialog otomatis setelah durasi tertentu
+    return Future.delayed(duration, () {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      onDismissed?.call();
+    });
   }
 
   /// Hide Loading Dialog
@@ -554,7 +742,11 @@ class Utils {
 
   /// Convert Color to hex string
   static String colorToHex(Color color) {
-    return '#${color.hashCode.toRadixString(16).substring(2)}';
+    final r = (color.r * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final g = (color.g * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final b = (color.b * 255).toInt().toRadixString(16).padLeft(2, '0');
+
+    return '#$r$g$b';
   }
 
   // ================= RANDOM =================
@@ -567,5 +759,49 @@ class Utils {
       length,
       (index) => chars[DateTime.now().millisecondsSinceEpoch % chars.length],
     ).join();
+  }
+
+  // Empty state
+  static Center emptyState(
+    String imagePath,
+    String header,
+    String description, {
+    double imageWidth = 200,
+    double imageHeight = 200,
+    Color textColor = Colors.grey,
+  }) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              imagePath,
+              width: imageWidth,
+              height: imageHeight,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              header,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              description,
+              style: TextStyle(fontSize: 14, color: textColor),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../constants/constant.dart';
+
 class CustomTextField {
   // ================= STANDARD TEXT FIELD =================
   static Widget standard({
     TextEditingController? controller,
     String? label,
+    Color? labelColor,
     String? hint,
     String? errorText,
+    String? prefixText,
+    String? suffixText,
     IconData? prefixIcon,
     IconData? suffixIcon,
     VoidCallback? onSuffixIconTap,
@@ -28,10 +33,10 @@ class CustomTextField {
         if (label != null) ...[
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF212121),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: labelColor ?? Constant.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -51,7 +56,34 @@ class CustomTextField {
           decoration: InputDecoration(
             hintText: hint,
             errorText: errorText,
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
+            prefixIcon: (prefixIcon != null || prefixText != null)
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (prefixIcon != null) ...[
+                          Icon(prefixIcon, size: 20),
+                          if (prefixText != null) const SizedBox(width: 8),
+                        ],
+                        if (prefixText != null)
+                          Text(
+                            prefixText,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    ),
+                  )
+                : null,
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+            ),
+            suffixText: suffixText,
             suffixIcon: suffixIcon != null
                 ? IconButton(
                     icon: Icon(suffixIcon, size: 20),
@@ -72,7 +104,7 @@ class CustomTextField {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+              borderSide: const BorderSide(color: Constant.violet400, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),

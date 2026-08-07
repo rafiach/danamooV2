@@ -8,6 +8,7 @@ class CustomCard {
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
     Color? color,
+    Color? borderColor,
     double elevation = 8,
     double borderRadius = 12,
   }) {
@@ -15,12 +16,17 @@ class CustomCard {
       margin: margin,
       decoration: BoxDecoration(
         color: color ?? Colors.white,
+        border: BoxBorder.all(
+          color: borderColor ?? Colors.grey.shade200,
+          width: 2,
+        ),
         borderRadius: BorderRadius.circular(borderRadius),
+
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: elevation,
-            offset: const Offset(0, 2),
+            offset: const Offset(6, 8),
           ),
         ],
       ),
