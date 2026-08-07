@@ -1,30 +1,35 @@
+import 'package:danamoo/core/services/notification_service.dart';
+import 'package:danamoo/core/services/storage_service.dart';
+import 'package:danamoo/data/repositories/auth_repository.dart';
+import 'package:danamoo/data/repositories/sync_repository.dart';
+import 'package:danamoo/data/repositories/transaction_repository.dart';
+import 'package:danamoo/features/auth/provider/auth_provider.dart';
+import 'package:danamoo/features/auth/view/login_view.dart';
+import 'package:danamoo/features/home/provider/home_provider.dart';
+import 'package:danamoo/features/home/view/home_view.dart';
+import 'package:danamoo/features/insight/provider/insight_provider.dart';
+import 'package:danamoo/features/profile/provider/profile_provider.dart';
+import 'package:danamoo/features/splash/view/splash_view.dart';
+import 'package:danamoo/features/transaction/provider/transaction_provider.dart';
 import 'package:danamoo/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
-import 'package:danamoo/core/services/storage_service.dart';
-import 'package:danamoo/features/auth/view/login_view.dart';
-import 'package:danamoo/features/splash/view/splash_view.dart';
-import 'package:danamoo/features/auth/provider/auth_provider.dart';
-import 'package:danamoo/features/home/view/home_view.dart';
 
 void main() async {
-  // ================= INIT =================
   WidgetsFlutterBinding.ensureInitialized();
-  initializeDateFormatting('id_ID', null);
+  await initializeDateFormatting('id_ID', null);
 
-  // Paksa orientasi portrait
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Init Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService.initialize();
 
-  // Atur tampilan status bar & navigation bar
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -34,7 +39,6 @@ void main() async {
     ),
   );
 
-  // Init SharedPreferences
   final storage = await StorageService.getInstance();
 
   runApp(MyApp(storage: storage));
@@ -47,24 +51,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Buat instance repository sekali, dipakai bersama antar provider
+    final authRepository = AuthRepository(storage);
+    final syncRepository = SyncRepository(storage);
+    final transactionRepository = TransactionRepository();
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthProvider()..initService(storage),
         ),
-        // Tambahkan provider lain di sini nanti
-        // ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(
+          create: (_) =>
+              HomeProvider(transactionRepository: transactionRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              TransactionProvider(transactionRepository: transactionRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              InsightProvider(transactionRepository: transactionRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProfileProvider(
+            authRepository: authRepository,
+            syncRepository: syncRepository,
+            transactionRepository: transactionRepository,
+          ),
+        ),
       ],
       child: MaterialApp(
-        title: 'Flutter Template',
+        title: 'Danamoo',
         debugShowCheckedModeBanner: false,
+        navigatorKey: NotificationService.navigatorKey,
 
         // ================= THEME =================
         theme: ThemeData(
           colorSchemeSeed: const Color(0xFF2196F3),
           useMaterial3: true,
           fontFamily: 'Poppins',
-
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.white,
             foregroundColor: Color(0xFF212121),
@@ -76,9 +102,7 @@ class MyApp extends StatelessWidget {
               color: Color(0xFF212121),
             ),
           ),
-
           scaffoldBackgroundColor: Colors.white,
-
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2196F3),
@@ -89,7 +113,6 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
             fillColor: const Color(0xFFF5F5F5),
@@ -116,10 +139,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
 
-        // ================= AUTH WRAPPER =================
-        // Status initial → SplashView (SplashView yang panggil checkSession)
-        // Status authenticated → HomeView
-        // Status unauthenticated/error → LoginView
         home: const AuthWrapper(),
       ),
     );
@@ -136,17 +155,11 @@ class AuthWrapper extends StatelessWidget {
 
     switch (auth.status) {
       case AuthStatus.initial:
-        // Selalu mulai dari SplashView
-        // SplashView yang bertanggung jawab panggil checkSession()
         return const SplashView();
-
       case AuthStatus.loading:
-        // Tetap di SplashView saat checkSession() berjalan
         return const SplashView();
-
       case AuthStatus.authenticated:
         return const HomeView();
-
       case AuthStatus.unauthenticated:
       case AuthStatus.error:
         return const LoginView();

@@ -10,6 +10,10 @@ import '../../../generated/assets.dart';
 
 import '../../auth/provider/auth_provider.dart';
 
+import '../../history/view/history_view.dart';
+import '../../insight/view/insight_view.dart';
+import '../../profile/view/profile_view.dart';
+import '../../transaction/view/transaction_view.dart';
 import '../model/home_model.dart';
 import '../provider/home_provider.dart';
 import 'widget/bubble_decoration_widget.dart';
