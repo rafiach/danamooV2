@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/utils/utils.dart';
 import '../../../core/widgets/custom_appbar.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_navigator.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../generated/assets.dart';
@@ -68,12 +69,12 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     super.dispose();
   }
 
-  Future<void> _toggleEdit() async {
+  void _toggleEdit() {
     if (!_isEditing) {
       setState(() => _isEditing = true);
       return;
     }
-    await _saveChanges();
+    _saveChanges();
   }
 
   void _cancelEdit() {
@@ -97,6 +98,15 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     final rawAmount = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
     final amount = double.tryParse(rawAmount) ?? 0;
 
+    if (amount <= 0) {
+      Utils.showWarningDialog(
+        context,
+        title: 'Nominal tidak valid',
+        content: 'Masukkan nominal transaksi yang benar',
+      );
+      return;
+    }
+
     final provider = context.read<TransactionProvider>();
     final success = await provider.update(
       userId: userId,
@@ -119,8 +129,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
 
       Utils.showAutoDismissDialog(
         context,
-        title: "Perubahan Disimpan",
-        content: "Transaksi berhasil diperbarui",
+        title: 'Perubahan Disimpan',
+        content: 'Transaksi berhasil diperbarui',
         imagePath: Assets.assetsIconsSuccess,
         onDismissed: () {
           if (mounted) CustomNavigator.pop(context, true);
@@ -129,8 +139,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     } else {
       Utils.showAutoDismissDialog(
         context,
-        title: "Perubahan Gagal Disimpan",
-        content: "Transaksi gagal diperbarui",
+        title: 'Perubahan Gagal Disimpan',
+        content: 'Transaksi gagal diperbarui',
         imagePath: Assets.assetsIconsError,
         onDismissed: () {
           if (mounted) CustomNavigator.pop(context, true);
@@ -149,69 +159,78 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
         : _expenseCategories;
 
     return Scaffold(
-      backgroundColor: Constant.violetDarker,
+      backgroundColor: Constant.bgNeutral,
       appBar: CustomAppBar.standard(
-        title: 'Detail History',
+        title: 'Detail Transaksi',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => CustomNavigator.pop(context),
         ),
-        backgroundColor: Constant.violetDarker,
-        foregroundColor: Colors.white,
+        backgroundColor: Constant.surfaceCard,
+        foregroundColor: Constant.textPrimary,
         actions: [
           if (_isEditing)
             IconButton(
-              icon: const Icon(Icons.close, color: Colors.white),
+              icon: const Icon(Icons.close),
               onPressed: _cancelEdit,
             ),
           IconButton(
-            icon: Icon(
-              _isEditing ? Icons.check : Icons.edit,
-              color: Colors.white,
-            ),
+            icon: Icon(_isEditing ? Icons.check : Icons.edit),
             onPressed: _toggleEdit,
           ),
         ],
       ),
-      body: SafeArea(
-        bottom: false,
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          margin: const EdgeInsets.only(top: 16),
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: Constant.violet50,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32),
-              topRight: Radius.circular(32),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            Expanded(
+              child: SafeArea(
+                bottom: false,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: _isEditing
+                      ? HistoryEditForm(
+                          amountController: _amountController,
+                          noteController: _noteController,
+                          selectedDate: _selectedDate,
+                          selectedType: _selectedType,
+                          selectedCategory: _selectedCategory,
+                          categories: currentCategories,
+                          currency: currency,
+                          onDateChanged: (date) =>
+                              setState(() => _selectedDate = date),
+                          onTypeChanged: (type) => setState(() {
+                            _selectedType = type;
+                            _selectedCategory = null;
+                          }),
+                          onCategoryChanged: (cat) =>
+                              setState(() => _selectedCategory = cat),
+                        )
+                      : HistoryDetailContent(
+                          transaction: tx,
+                          category: widget.data.category,
+                          currency: currency,
+                        ),
+                ),
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            child: _isEditing
-                ? HistoryEditForm(
-                    amountController: _amountController,
-                    noteController: _noteController,
-                    selectedDate: _selectedDate,
-                    selectedType: _selectedType,
-                    selectedCategory: _selectedCategory,
-                    categories: currentCategories,
-                    currency: currency,
-                    onDateChanged: (date) =>
-                        setState(() => _selectedDate = date),
-                    onTypeChanged: (type) => setState(() {
-                      _selectedType = type;
-                      _selectedCategory = null;
-                    }),
-                    onCategoryChanged: (cat) =>
-                        setState(() => _selectedCategory = cat),
-                  )
-                : HistoryDetailContent(
-                    transaction: tx,
-                    category: widget.data.category,
-                    currency: currency,
+
+            // Floating Save Button (only in edit mode)
+            if (_isEditing)
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: CustomButton.mainButton(
+                    label: 'Simpan',
+                    onPressed: _saveChanges,
+                    height: 56,
+                    borderRadius: 16,
                   ),
-          ),
+                ),
+              ),
+          ],
         ),
       ),
     );

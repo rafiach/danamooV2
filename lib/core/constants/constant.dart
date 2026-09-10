@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 
 class Constant {
-  // ================= COLORS - BRAND =================
-  static const Color primaryColor = Color(0xFF2196F3); // Blue Default
+  // ================= COLORS - NEW DESIGN SYSTEM =================
+  static const Color limeAccent = Color(0xFF84CC16);
+  static const Color limeAccentLight = Color(0xFFA3E635);
+  static const Color limeAccentDark = Color(0xFF65A30D);
+  static const Color surfaceDark = Color(0xFF1A1A1A);
+  static const Color bgNeutral = Color(0xFFFAFAFA);
+  static const Color surfaceCard = Colors.white;
+  static const Color borderSubtle = Color(0xFFE8E8E8);
+  static const Color expenseRed = Color(0xFFEF4444);
+  static const Color expenseRedLight = Color(0xFFF87171);
+
+  // ================= COLORS - BRAND (DEPRECATED - kept for backward compat) =================
+  @Deprecated('Use limeAccent instead')
+  static const Color primaryColor = Color(0xFF2196F3);
+  @Deprecated('Use limeAccentLight instead')
   static const Color primaryLight = Color(0xFF64B5F6);
+  @Deprecated('Use limeAccentDark instead')
   static const Color primaryDark = Color(0xFF1976D2);
 
-  static const Color secondaryColor = Color(0xFF03A9F4); // Light Blue
+  @Deprecated('Use limeAccent instead')
+  static const Color secondaryColor = Color(0xFF03A9F4);
+  @Deprecated('Use limeAccentLight instead')
   static const Color secondaryLight = Color(0xFF4FC3F7);
+  @Deprecated('Use limeAccentDark instead')
   static const Color secondaryDark = Color(0xFF0288D1);
 
-  static const Color accentColor = Color(0xFFFF9800); // Orange
+  @Deprecated('Use expenseRed instead')
+  static const Color accentColor = Color(0xFFFF9800);
 
   static const Color greenPrime = Color(0xFF435859);
   static const Color greenLight = Color(0xFF607D7B);
@@ -35,10 +53,15 @@ class Constant {
   static const Color otherPrime = Color(0xFF8D99AE);
   static const Color otherSecond = Color(0xFFF1F3F5);
 
+  @Deprecated('Use bgNeutral/surfaceDark instead')
   static const Color violet50 = Color(0xFFEEEDFE);
+  @Deprecated('Use bgNeutral/surfaceDark instead')
   static const Color violet200 = Color(0xFFAFA9EC);
+  @Deprecated('Use limeAccent instead')
   static const Color violet400 = Color(0xFF7F77DD);
+  @Deprecated('Use surfaceDark instead')
   static const Color violetDark = Color(0xFF534AB7);
+  @Deprecated('Use surfaceDark instead')
   static const Color violetDarker = Color(0xFF3D1E6B);
 
   // ================= COLORS - BASIC =================
@@ -53,25 +76,25 @@ class Constant {
   static const Color greyDark = Color(0xFF616161);
 
   // ================= COLORS - STATUS =================
-  static const Color success = Color(0xFF4CAF50); // Green
+  static const Color success = Color(0xFF4CAF50);
   static const Color successLight = Color(0xFF81C784);
   static const Color successDark = Color(0xFF388E3C);
 
-  static const Color warning = Color(0xFFFFC107); // Amber/Yellow
+  static const Color warning = Color(0xFFFFC107);
   static const Color warningLight = Color(0xFFFFD54F);
   static const Color warningDark = Color(0xFFFFA000);
 
-  static const Color error = Color(0xFFF44336); // Red
+  static const Color error = Color(0xFFF44336);
   static const Color errorLight = Color(0xFFE57373);
   static const Color errorDark = Color(0xFFD32F2F);
 
-  static const Color info = Color(0xFF2196F3); // Blue
+  static const Color info = Color(0xFF2196F3);
   static const Color infoLight = Color(0xFF64B5F6);
   static const Color infoDark = Color(0xFF1976D2);
 
   // ================= COLORS - TEXT =================
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
+  static const Color textPrimary = Color(0xFF1A1A1A);
+  static const Color textSecondary = Color(0xFF6B6B6B);
   static const Color textHint = Color(0xFFBDBDBD);
   static const Color textDisabled = Color(0xFFE0E0E0);
   static const Color textWhite = Colors.white;
@@ -83,8 +106,8 @@ class Constant {
   static const Color bgDark = Color(0xFF303030);
 
   // ================= COLORS - BORDER & DIVIDER =================
-  static const Color borderColor = Color(0xFFE0E0E0);
-  static const Color dividerColor = Color(0xFFBDBDBD);
+  static const Color borderColor = Color(0xFFE8E8E8);
+  static const Color dividerColor = Color(0xFFE8E8E8);
 
   // ================= TEXT STYLES - HEADING =================
   static const TextStyle h1 = TextStyle(
@@ -299,22 +322,34 @@ class Constant {
   static const BorderRadius radiusSmall = BorderRadius.all(Radius.circular(4));
   static const BorderRadius radiusMedium = BorderRadius.all(Radius.circular(8));
   static const BorderRadius radiusLarge = BorderRadius.all(Radius.circular(12));
-  static const BorderRadius radiusXLarge = BorderRadius.all(
-    Radius.circular(16),
-  );
-  static const BorderRadius radiusRound = BorderRadius.all(
-    Radius.circular(999),
-  );
+  static const BorderRadius radiusXLarge = BorderRadius.all(Radius.circular(16));
+  static const BorderRadius radiusXXLarge = BorderRadius.all(Radius.circular(24));
+  static const BorderRadius radiusRound = BorderRadius.all(Radius.circular(999));
 
   // ================= SHADOWS =================
+  static const List<BoxShadow> shadowSm = [
+    BoxShadow(color: Color(0x0A000000), blurRadius: 2, offset: Offset(0, 1)),
+  ];
+
+  static const List<BoxShadow> shadowMd = [
+    BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 4)),
+  ];
+
+  static const List<BoxShadow> shadowLg = [
+    BoxShadow(color: Color(0x1A000000), blurRadius: 16, offset: Offset(0, 8)),
+  ];
+
+  @Deprecated('Use shadowSm/shadowMd/shadowLg instead')
   static const List<BoxShadow> shadowSmall = [
     BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 2)),
   ];
 
+  @Deprecated('Use shadowMd instead')
   static const List<BoxShadow> shadowMedium = [
     BoxShadow(color: Color(0x1F000000), blurRadius: 8, offset: Offset(0, 4)),
   ];
 
+  @Deprecated('Use shadowLg instead')
   static const List<BoxShadow> shadowLarge = [
     BoxShadow(color: Color(0x24000000), blurRadius: 16, offset: Offset(0, 8)),
   ];

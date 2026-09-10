@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:danamoo/core/widgets/custom_button.dart';
-import 'package:danamoo/features/auth/provider/auth_provider.dart';
-import 'package:danamoo/features/auth/view/widget/auth_textfield.dart';
+
+import '../../../core/constants/constant.dart';
+import '../../../core/utils/utils.dart';
+import '../../../core/widgets/custom_button.dart';
+import '../../../core/widgets/custom_textfield.dart';
+import '../../auth/provider/auth_provider.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -38,16 +41,11 @@ class _RegisterViewState extends State<RegisterView> {
     );
 
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.errorMessage ?? 'Registrasi gagal'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
+      Utils.showErrorSnackbar(
+        context,
+        auth.errorMessage ?? 'Registrasi gagal',
       );
     }
-    // Jika success, AuthWrapper otomatis redirect ke HomeView
   }
 
   @override
@@ -55,6 +53,7 @@ class _RegisterViewState extends State<RegisterView> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: Constant.bgNeutral,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -63,32 +62,38 @@ class _RegisterViewState extends State<RegisterView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ===== BACK BUTTON =====
+                // Back Button
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back),
                   padding: EdgeInsets.zero,
+                  color: Constant.textSecondary,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // ===== HEADER =====
-                const Text(
+                // Header
+                Text(
                   'Buat Akun Baru',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: Constant.h3.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Constant.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Isi data diri kamu untuk mendaftar',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  'Isi data untuk mendaftar',
+                  style: Constant.bodyMedium.copyWith(
+                    color: Constant.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 40),
 
-                // ===== FORM =====
-                AuthTextField(
+                // Name Field
+                CustomTextField.standard(
                   controller: _nameController,
                   label: 'Nama Lengkap',
                   hint: 'Masukkan nama lengkap',
-                  icon: Icons.person_outline,
+                  prefixIcon: Icons.person_outlined,
                   textCapitalization: TextCapitalization.words,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -101,11 +106,13 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+
+                // Email Field
+                CustomTextField.standard(
                   controller: _emailController,
                   label: 'Email',
                   hint: 'contoh@email.com',
-                  icon: Icons.email_outlined,
+                  prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -120,12 +127,12 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+
+                // Password Field
+                CustomTextField.password(
                   controller: _passwordController,
                   label: 'Password',
                   hint: 'Minimal 8 karakter',
-                  icon: Icons.lock_outline,
-                  isPassword: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Password tidak boleh kosong';
@@ -137,12 +144,12 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+
+                // Confirm Password Field
+                CustomTextField.password(
                   controller: _confirmPasswordController,
                   label: 'Konfirmasi Password',
                   hint: 'Ulangi password',
-                  icon: Icons.lock_outline,
-                  isPassword: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Konfirmasi password tidak boleh kosong';
@@ -155,33 +162,38 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
                 const SizedBox(height: 32),
 
-                // ===== BUTTON =====
+                // Register Button
                 CustomButton.mainButton(
                   label: 'Daftar',
                   onPressed: _onRegister,
                   isLoading: auth.isLoading,
+                  height: 56,
+                  borderRadius: 16,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-                // ===== LOGIN LINK =====
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Sudah punya akun? ',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2196F3),
+                // Login Link
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Sudah punya akun? ',
+                        style: Constant.bodyMedium.copyWith(
+                          color: Constant.textSecondary,
                         ),
                       ),
-                    ),
-                  ],
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Text(
+                          'Masuk',
+                          style: Constant.textSemiBold.copyWith(
+                            color: Constant.limeAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

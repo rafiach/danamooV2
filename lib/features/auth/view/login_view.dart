@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:danamoo/core/widgets/custom_navigator.dart';
-import 'package:danamoo/features/auth/provider/auth_provider.dart';
-import 'package:danamoo/features/auth/view/register_view.dart';
-import 'package:danamoo/features/auth/view/widget/auth_textfield.dart';
-import 'package:danamoo/core/widgets/custom_button.dart';
+
+import '../../../core/constants/constant.dart';
+import '../../../core/utils/utils.dart';
+import '../../../core/widgets/custom_button.dart';
+import '../../../core/widgets/custom_navigator.dart';
+import '../../../core/widgets/custom_textfield.dart';
+import '../../auth/provider/auth_provider.dart';
+import '../view/register_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -35,16 +38,11 @@ class _LoginViewState extends State<LoginView> {
     );
 
     if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.errorMessage ?? 'Login gagal'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
+      Utils.showErrorSnackbar(
+        context,
+        auth.errorMessage ?? 'Login gagal',
       );
     }
-    // Jika success, AuthWrapper otomatis redirect ke HomeView
   }
 
   @override
@@ -52,6 +50,7 @@ class _LoginViewState extends State<LoginView> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: Constant.bgNeutral,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -60,26 +59,29 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 40),
-
-                // ===== HEADER =====
-                const Text(
-                  'Selamat Datang 👋',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                // Header
+                Text(
+                  'Selamat Datang',
+                  style: Constant.h3.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Constant.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Silakan login untuk melanjutkan',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  'Masuk untuk melanjutkan',
+                  style: Constant.bodyMedium.copyWith(
+                    color: Constant.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 40),
 
-                // ===== FORM =====
-                AuthTextField(
+                // Email Field
+                CustomTextField.standard(
                   controller: _emailController,
                   label: 'Email',
                   hint: 'contoh@email.com',
-                  icon: Icons.email_outlined,
+                  prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -94,12 +96,12 @@ class _LoginViewState extends State<LoginView> {
                   },
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+
+                // Password Field
+                CustomTextField.password(
                   controller: _passwordController,
                   label: 'Password',
                   hint: 'Masukkan password',
-                  icon: Icons.lock_outline,
-                  isPassword: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Password tidak boleh kosong';
@@ -112,34 +114,39 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 const SizedBox(height: 32),
 
-                // ===== BUTTON =====
+                // Login Button
                 CustomButton.mainButton(
-                  label: 'Login',
+                  label: 'Masuk',
                   onPressed: _onLogin,
                   isLoading: auth.isLoading,
+                  height: 56,
+                  borderRadius: 16,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-                // ===== REGISTER LINK =====
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Belum punya akun? ',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    GestureDetector(
-                      onTap: () =>
-                          CustomNavigator.push(context, const RegisterView()),
-                      child: const Text(
-                        'Daftar',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF2196F3),
+                // Register Link
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Belum punya akun? ',
+                        style: Constant.bodyMedium.copyWith(
+                          color: Constant.textSecondary,
                         ),
                       ),
-                    ),
-                  ],
+                      GestureDetector(
+                        onTap: () =>
+                            CustomNavigator.push(context, const RegisterView()),
+                        child: Text(
+                          'Daftar',
+                          style: Constant.textSemiBold.copyWith(
+                            color: Constant.limeAccent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

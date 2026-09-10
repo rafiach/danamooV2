@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import '../../../../core/constants/constant.dart';
 import '../../../../core/utils/utils.dart';
 import '../../../../core/widgets/custom_textfield.dart';
+import '../../../../core/widgets/date_picker_sheet.dart';
+import '../../../../core/widgets/segmented_control.dart';
 import '../../../../data/models/transaction_model.dart';
 
 class HistoryEditForm extends StatelessWidget {
@@ -38,14 +40,25 @@ class HistoryEditForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final expenseCategories = categories
+        .where((cat) => cat.type == TransactionType.expense)
+        .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ===== TOGGLE INCOME / EXPENSE =====
-        _TypeToggle(activeType: selectedType, onChanged: onTypeChanged),
+        // Type Toggle
+        SegmentedControl(
+          labels: const ['Pemasukan', 'Pengeluaran'],
+          selectedIndex: _isExpense ? 1 : 0,
+          onChanged: (index) =>
+              onTypeChanged(index == 0 ? TransactionType.income : TransactionType.expense),
+          borderRadius: 24,
+          height: 50,
+        ),
         const SizedBox(height: 24),
 
-        // ===== AMOUNT =====
+        // Amount Field
         _SectionLabel('NOMINAL'),
         const SizedBox(height: 8),
         CustomTextField.standard(
@@ -58,16 +71,20 @@ class HistoryEditForm extends StatelessWidget {
             _CurrencyInputFormatter(),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
 
-        // ===== CATEGORY (hanya expense) =====
+        // Category (Expense only)
         if (_isExpense) ...[
-          _SectionLabel('CATEGORY'),
+          _SectionLabel('KATEGORI'),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: categories.map((cat) {
+          GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: 2.8,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            children: expenseCategories.map((cat) {
               final isSelected = selectedCategory?.id == cat.id;
               return _CategoryChip(
                 category: cat,
@@ -76,23 +93,26 @@ class HistoryEditForm extends StatelessWidget {
               );
             }).toList(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
         ],
 
-        // ===== DESCRIPTION =====
-        _SectionLabel('DESCRIPTION'),
-        const SizedBox(height: 12),
+        // Description
+        _SectionLabel('DESKRIPSI'),
+        const SizedBox(height: 8),
         CustomTextField.standard(
           controller: noteController,
-          hint: 'Describe your transaction',
-          maxLines: 5,
+          hint: 'Catatan transaksi',
+          maxLines: 4,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
 
-        // ===== DATE =====
-        _SectionLabel('DATE'),
-        const SizedBox(height: 12),
-        _DateField(selectedDate: selectedDate, onDateChanged: onDateChanged),
+        // Date Field
+        _SectionLabel('TANGGAL'),
+        const SizedBox(height: 8),
+        _DateField(
+          selectedDate: selectedDate,
+          onDateChanged: onDateChanged,
+        ),
       ],
     );
   }
@@ -109,9 +129,9 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Constant.bodyLarge.copyWith(
-        color: Constant.violetDarker,
-        fontWeight: FontWeight.bold,
+      style: Constant.textSemiBold.copyWith(
+        color: Constant.textPrimary,
+        fontSize: 14,
       ),
     );
   }
@@ -132,28 +152,41 @@ class _CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: AnimatedContainer(
+        duration: Constant.durationShort,
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? category.color.withValues(alpha: 0.15)
+              ? Constant.limeAccent.withValues(alpha: 0.15)
               : Colors.transparent,
           border: Border.all(
-            color: isSelected ? category.color : Colors.grey.shade300,
-            width: 1.5,
+            color: isSelected ? Constant.limeAccent : Constant.borderSubtle,
+            width: isSelected ? 2 : 1.5,
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(category.icon, width: 24, height: 24),
+            ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                isSelected ? Constant.limeAccent : Constant.textSecondary,
+                BlendMode.srcIn,
+              ),
+              child: Image.asset(category.icon, width: 22, height: 22),
+            ),
             const SizedBox(width: 8),
-            Text(
-              category.name,
-              style: TextStyle(
-                color: isSelected ? category.color : Colors.grey.shade700,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            Flexible(
+              child: Text(
+                category.name,
+                style: TextStyle(
+                  color: isSelected ? Constant.limeAccent : Constant.textSecondary,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -172,107 +205,36 @@ class _DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
       onTap: () async {
-        final picked = await Utils.pickDate(context, initialDate: selectedDate);
+        final picked = await DatePickerSheet.show(
+          context: context,
+          initialDate: selectedDate,
+          title: 'Pilih Tanggal',
+        );
         if (picked != null) onDateChanged(picked);
       },
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Constant.white,
-          border: Border.all(color: Colors.grey.shade300, width: 1.5),
+          color: Constant.surfaceCard,
+          border: Border.all(color: Constant.borderSubtle, width: 1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.calendar_today,
-              size: 20,
-              color: Constant.violetDarker,
-            ),
+            Icon(Icons.calendar_today_outlined, size: 20, color: Constant.limeAccent),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                Utils.formatDateShort(selectedDate),
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
-                overflow: TextOverflow.ellipsis,
+                Utils.formatDate(selectedDate),
+                style: Constant.bodyMedium.copyWith(
+                  color: Constant.textPrimary,
+                  fontSize: 16,
+                ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TypeToggle extends StatelessWidget {
-  final TransactionType activeType;
-  final ValueChanged<TransactionType> onChanged;
-
-  const _TypeToggle({required this.activeType, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final isIncome = activeType == TransactionType.income;
-
-    return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      decoration: BoxDecoration(
-        color: Constant.violetDarker,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          _ToggleItem(
-            label: 'Income',
-            isActive: isIncome,
-            onTap: () => onChanged(TransactionType.income),
-          ),
-          _ToggleItem(
-            label: 'Expense',
-            isActive: !isIncome,
-            onTap: () => onChanged(TransactionType.expense),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToggleItem extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _ToggleItem({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: isActive ? Constant.expensePrime : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Constant.textWhite,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              fontSize: 14,
-            ),
-          ),
         ),
       ),
     );

@@ -1,7 +1,76 @@
 import 'package:flutter/material.dart';
+import '../constants/constant.dart';
 
 class CustomCard {
-  // ================= ELEVATED CARD =================
+  // ================= HERO CARD (Dark surface for balance/summary) =================
+  static Widget hero({
+    required Widget child,
+    VoidCallback? onTap,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+    Color? color,
+    Color? borderColor,
+    double borderRadius = 24,
+  }) {
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: color ?? Constant.surfaceDark,
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1.5)
+            : null,
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: Constant.shadowMd,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(20),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ================= SURFACE CARD (Standard white card) =================
+  static Widget surface({
+    required Widget child,
+    VoidCallback? onTap,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
+    Color? color,
+    Color? borderColor,
+    double borderRadius = 16,
+  }) {
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: color ?? Constant.surfaceCard,
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1)
+            : Border.all(color: Constant.borderSubtle, width: 1),
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: Constant.shadowSm,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(16),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ================= ELEVATED CARD (Legacy - kept for backward compat) =================
   static Widget elevated({
     required Widget child,
     VoidCallback? onTap,
@@ -21,7 +90,6 @@ class CustomCard {
           width: 2,
         ),
         borderRadius: BorderRadius.circular(borderRadius),
-
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.15),
@@ -79,7 +147,7 @@ class CustomCard {
     );
   }
 
-  // ================= FILLED CARD =================
+  // ================= FILLED CARD (Legacy) =================
   static Widget filled({
     required Widget child,
     VoidCallback? onTap,

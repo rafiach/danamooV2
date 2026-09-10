@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../constants/constant.dart';
 
 class CustomButton {
-  // ================= MAIN BUTTON =================
+  // ================= MAIN BUTTON (Primary - Lime Accent) =================
   static Widget mainButton({
     required String label,
     required VoidCallback? onPressed,
@@ -16,6 +17,7 @@ class CustomButton {
     double? width,
   }) {
     final isDisabled = !enabled || isLoading || onPressed == null;
+    final btnColor = color ?? Constant.limeAccent;
 
     return SizedBox(
       width: width ?? double.infinity,
@@ -23,11 +25,8 @@ class CustomButton {
       child: ElevatedButton(
         onPressed: isDisabled ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          // Warna saat disabled lebih proper pakai withValues
-          disabledBackgroundColor:
-              color?.withValues(alpha: 0.4) ??
-              Colors.grey.withValues(alpha: 0.3),
+          backgroundColor: btnColor,
+          disabledBackgroundColor: btnColor.withValues(alpha: 0.4),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
@@ -44,7 +43,7 @@ class CustomButton {
     );
   }
 
-  // ================= BORDER BUTTON =================
+  // ================= BORDER BUTTON (Secondary - Lime Accent) =================
   static Widget borderButton({
     required String label,
     required VoidCallback? onPressed,
@@ -59,7 +58,7 @@ class CustomButton {
     double? width,
   }) {
     final isDisabled = !enabled || isLoading || onPressed == null;
-    final activeColor = color ?? const Color(0xFF2196F3);
+    final activeColor = color ?? Constant.limeAccent;
 
     return SizedBox(
       width: width ?? double.infinity,
@@ -105,7 +104,7 @@ class CustomButton {
     TextDecoration? decoration,
   }) {
     final isDisabled = !enabled || isLoading || onPressed == null;
-    final activeColor = color ?? const Color(0xFF2196F3);
+    final activeColor = color ?? Constant.limeAccent;
 
     return TextButton(
       onPressed: isDisabled ? null : onPressed,
@@ -139,7 +138,7 @@ class CustomButton {
     String? tooltip,
   }) {
     final isDisabled = !enabled || isLoading || onPressed == null;
-    final activeColor = color ?? const Color(0xFF2196F3);
+    final activeColor = color ?? Constant.limeAccent;
 
     return IconButton(
       onPressed: isDisabled ? null : onPressed,
@@ -177,7 +176,7 @@ class CustomButton {
     String? tooltip,
   }) {
     final isDisabled = !enabled || isLoading || onPressed == null;
-    final bgColor = color ?? const Color(0xFF2196F3);
+    final bgColor = color ?? Constant.limeAccent;
 
     return Tooltip(
       message: tooltip ?? '',

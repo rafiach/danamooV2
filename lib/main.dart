@@ -1,3 +1,4 @@
+import 'package:danamoo/core/constants/constant.dart';
 import 'package:danamoo/core/services/notification_service.dart';
 import 'package:danamoo/core/services/storage_service.dart';
 import 'package:danamoo/data/repositories/auth_repository.dart';
@@ -5,6 +6,7 @@ import 'package:danamoo/data/repositories/sync_repository.dart';
 import 'package:danamoo/data/repositories/transaction_repository.dart';
 import 'package:danamoo/features/auth/provider/auth_provider.dart';
 import 'package:danamoo/features/auth/view/login_view.dart';
+import 'package:danamoo/features/history/provider/history_provider.dart';
 import 'package:danamoo/features/home/provider/home_provider.dart';
 import 'package:danamoo/features/home/view/home_view.dart';
 import 'package:danamoo/features/insight/provider/insight_provider.dart';
@@ -31,10 +33,10 @@ void main() async {
   await NotificationService.initialize();
 
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
+    SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
+      systemNavigationBarColor: Constant.bgNeutral,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
@@ -71,6 +73,10 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) =>
+              HistoryProvider(transactionRepositori: transactionRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
               InsightProvider(transactionRepository: transactionRepository),
         ),
         ChangeNotifierProvider(
@@ -88,24 +94,24 @@ class MyApp extends StatelessWidget {
 
         // ================= THEME =================
         theme: ThemeData(
-          colorSchemeSeed: const Color(0xFF2196F3),
+          colorSchemeSeed: Constant.limeAccent,
           useMaterial3: true,
           fontFamily: 'Poppins',
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.white,
-            foregroundColor: Color(0xFF212121),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Constant.surfaceCard,
+            foregroundColor: Constant.textPrimary,
             elevation: 0,
             centerTitle: true,
             titleTextStyle: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF212121),
+              color: Constant.textPrimary,
             ),
           ),
-          scaffoldBackgroundColor: Colors.white,
+          scaffoldBackgroundColor: Constant.bgNeutral,
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2196F3),
+              backgroundColor: Constant.limeAccent,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -115,7 +121,7 @@ class MyApp extends StatelessWidget {
           ),
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: const Color(0xFFF5F5F5),
+            fillColor: Constant.bgSecondary,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -126,11 +132,11 @@ class MyApp extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+              borderSide: BorderSide(color: Constant.limeAccent, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
+              borderSide: BorderSide(color: Constant.error, width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

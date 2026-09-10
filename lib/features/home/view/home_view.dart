@@ -16,7 +16,6 @@ import '../../profile/view/profile_view.dart';
 import '../../transaction/view/transaction_view.dart';
 import '../model/home_model.dart';
 import '../provider/home_provider.dart';
-import 'widget/bubble_decoration_widget.dart';
 import 'widget/list_item_widget.dart';
 
 class HomeView extends StatefulWidget {
@@ -45,149 +44,146 @@ class _HomeViewState extends State<HomeView> {
 
     return Scaffold(
       bottomNavigationBar: SafeArea(child: _buildFloatingBottomBar()),
-      backgroundColor: Constant.violet50,
+      backgroundColor: Constant.bgNeutral,
       body: homeProvider.isLoading
-          ? Center(child: CircularProgressIndicator(color: Constant.white))
-          : Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: MediaQuery.of(context).size.height * 0.28,
-                  child: ClipRect(
-                    child: Container(
-                      color: const Color(0xFF3D1E6B),
-                      child: CustomPaint(painter: BubbleDecorationWidget()),
-                    ),
-                  ),
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+          ? Center(child: CircularProgressIndicator(color: Constant.limeAccent))
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const SizedBox(height: 32),
-                        // Header
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "DANAMOO",
-                                  style: Constant.bodyLarge.copyWith(
-                                    fontSize: 24,
-                                    color: Constant.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Intip keuanganmoo hari ini !",
-                                  style: Constant.bodyLarge.copyWith(
-                                    color: Constant.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            InkWell(
-                              onTap: () {
-                                CustomNavigator.push(
-                                  context,
-                                  const ProfileView(),
-                                );
-                              },
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Constant.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Constant.greenPrime,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 36),
-                        // Current Balance Card
-                        _buildCurrentBalance(homeData),
-                        const SizedBox(height: 16),
-
-                        // ── Section Bawah (full-width, no padding issue) ──
-                        _buildCashFlow(homeData),
-                        const SizedBox(height: 24),
-
-                        // today transactions
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Transaksi Hari Ini",
-                              style: Constant.textMedium.copyWith(
-                                color: Constant.violetDarker,
+                              "DANAMOO",
+                              style: Constant.h4.copyWith(
+                                fontSize: 24,
+                                color: Constant.textPrimary,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "Intip keuanganmu hari ini !",
+                              style: Constant.bodyMedium.copyWith(
+                                color: Constant.textSecondary,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: ListView.separated(
-                            itemCount: homeData?.todayTransactions.length ?? 0,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final transaction =
-                                  homeData!.todayTransactions[index];
-                              final isIncome =
-                                  transaction.type == TransactionType.income;
-                              return ListItemWidget(
-                                label:
-                                    (transaction.note != null &&
-                                        transaction.note!.isNotEmpty)
-                                    ? transaction.note!
-                                    : transaction.label,
-                                nominal:
-                                    '${isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
-                                date: Utils.formatDateTimeToTime(
-                                  transaction.date,
-                                ),
-                                icon: transaction.icon.isNotEmpty
-                                    ? transaction.icon
-                                    : Assets.assetsIconsDollar,
-                                color: transaction.color,
-                                nominalColor: isIncome
-                                    ? Constant.greenPrime
-                                    : Constant.error,
-                              );
-                            },
+
+                        InkWell(
+                          onTap: () {
+                            CustomNavigator.push(context, const ProfileView());
+                          },
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Constant.surfaceCard,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Constant.borderSubtle),
+                              boxShadow: Constant.shadowSm,
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.person,
+                                color: Constant.limeAccent,
+                                size: 22,
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 20),
+
+                    // Hero Balance Card
+                    _buildHeroBalance(homeData),
+                    const SizedBox(height: 16),
+
+                    // Cash Flow Cards
+                    _buildCashFlow(homeData),
+                    const SizedBox(height: 24),
+
+                    // Today Transactions Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Transaksi Hari Ini",
+                          style: Constant.textSemiBold.copyWith(
+                            color: Constant.textPrimary,
+                            fontSize: 16,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            CustomNavigator.push(context, const HistoryView());
+                          },
+                          child: Text(
+                            'Lihat Semua',
+                            style: Constant.textMedium.copyWith(
+                              color: Constant.limeAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Today Transactions List
+                    Expanded(
+                      child: homeData?.todayTransactions.isEmpty ?? true
+                          ? _buildEmptyTransactions()
+                          : ListView.separated(
+                              itemCount:
+                                  homeData?.todayTransactions.length ?? 0,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 8),
+                              itemBuilder: (context, index) {
+                                final transaction =
+                                    homeData!.todayTransactions[index];
+                                final isIncome =
+                                    transaction.type == TransactionType.income;
+                                return ListTileTransaction(
+                                  label:
+                                      (transaction.note != null &&
+                                          transaction.note!.isNotEmpty)
+                                      ? transaction.note!
+                                      : transaction.label,
+                                  nominal:
+                                      '${isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
+                                  date: Utils.formatDateTimeToTime(
+                                    transaction.date,
+                                  ),
+                                  icon: transaction.icon.isNotEmpty
+                                      ? transaction.icon
+                                      : Assets.assetsIconsDollar,
+                                  isIncome: isIncome,
+                                );
+                              },
+                            ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
     );
   }
 
-  Widget _buildCurrentBalance(HomeModel? homeData) {
-    return CustomCard.elevated(
-      borderRadius: 20,
-      elevation: 16,
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+  Widget _buildHeroBalance(HomeModel? homeData) {
+    return CustomCard.hero(
+      borderRadius: 24,
+      padding: const EdgeInsets.all(20),
+      borderColor: Constant.limeAccent.withValues(alpha: 0.3),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -196,42 +192,34 @@ class _HomeViewState extends State<HomeView> {
             children: [
               Text(
                 "Sisa saldo mu",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Constant.violetDarker,
+                style: Constant.bodyMedium.copyWith(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(height: 8),
               Text(
                 Utils.formatIDR(homeData?.balance ?? 0),
-                style: TextStyle(
-                  fontSize: 24,
+                style: Constant.h2.copyWith(
+                  fontSize: 28,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  color: Constant.violetDarker,
                 ),
               ),
             ],
           ),
           Container(
-            width: 100,
-            height: 100,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
-              color: Constant.foodsPrime,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.25),
-                  blurRadius: 10,
-                  offset: const Offset(3, 5),
-                ),
-              ],
+              border: Border.all(color: Constant.limeAccent, width: 2),
             ),
             child: Center(
-              child: Image.asset(
-                Assets.assetsIconsCowMascotPeeking,
-                fit: BoxFit.contain,
-                scale: 3,
+              child: Icon(
+                Icons.account_balance_wallet,
+                color: Constant.limeAccent,
+                size: 28,
               ),
             ),
           ),
@@ -245,11 +233,9 @@ class _HomeViewState extends State<HomeView> {
       children: [
         // Total Income
         Expanded(
-          child: CustomCard.elevated(
-            color: Constant.incomePrime,
-            borderColor: Constant.incomePrime,
+          child: CustomCard.surface(
             borderRadius: 16,
-            elevation: 8,
+            padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -259,38 +245,46 @@ class _HomeViewState extends State<HomeView> {
                     children: [
                       Text(
                         "Income",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Constant.violet50,
+                        style: Constant.bodySmall.copyWith(
+                          color: Constant.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         Utils.formatIDR(homeData?.totalIncome ?? 0),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Constant.violet50,
+                        style: Constant.textSemiBold.copyWith(
+                          color: Constant.limeAccent,
+                          fontSize: 18,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_drop_down, color: Constant.violet50, size: 40),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Constant.limeAccent.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_downward,
+                    color: Constant.limeAccent,
+                    size: 22,
+                  ),
+                ),
               ],
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
 
         // Total Expenses
         Expanded(
-          child: CustomCard.elevated(
-            color: Constant.expensePrime,
-            borderColor: Constant.expensePrime,
+          child: CustomCard.surface(
             borderRadius: 16,
-            elevation: 8,
+            padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -300,25 +294,35 @@ class _HomeViewState extends State<HomeView> {
                     children: [
                       Text(
                         "Expense",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Constant.violet50,
+                        style: Constant.bodySmall.copyWith(
+                          color: Constant.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         Utils.formatIDR(homeData?.totalExpense ?? 0),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Constant.violet50,
+                        style: Constant.textSemiBold.copyWith(
+                          color: Constant.expenseRed,
+                          fontSize: 18,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.arrow_drop_up, color: Constant.violet50, size: 40),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Constant.expenseRed.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_upward,
+                    color: Constant.expenseRed,
+                    size: 22,
+                  ),
+                ),
               ],
             ),
           ),
@@ -327,127 +331,167 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildFloatingBottomBar() {
-    return SizedBox(
-      height: 120,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        clipBehavior: Clip.none,
+  Widget _buildEmptyTransactions() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Background Bar
           Container(
-            height: 75,
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
-              color: Constant.violetDark,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
+              color: Constant.limeAccent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildItem(
-                  icon: Assets.assetsIconsClipboard,
-                  label: "Riwayat",
-                  onTap: () {
-                    CustomNavigator.push(context, const HistoryView());
-                  },
-                ),
-                const SizedBox(width: 60),
-                _buildItem(
-                  icon: Assets.assetsIconsBarChart,
-                  label: "Insight",
-                  onTap: () {
-                    CustomNavigator.push(context, const InsightView());
-                  },
-                ),
-              ],
+            child: Icon(
+              Icons.receipt_long_outlined,
+              color: Constant.limeAccent,
+              size: 40,
             ),
           ),
-
-          Positioned(
-            top: -12,
-            child: GestureDetector(
-              onTap: () {
-                CustomNavigator.push(context, const TransactionView());
-              },
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Constant.violet50,
-                      // shape: BoxShape.circle,
-                      borderRadius: BorderRadius.circular(45),
-                    ),
-                  ),
-                  // Tombol utama
-                  Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Constant.expensePrime,
-                          Color.lerp(
-                            Constant.expensePrime,
-                            Colors.black,
-                            0.15,
-                          )!,
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.add, size: 40, color: Colors.white),
-                  ),
-                ],
-              ),
+          const SizedBox(height: 16),
+          Text(
+            'Belum ada transaksi hari ini',
+            style: Constant.textSemiBold.copyWith(
+              color: Constant.textPrimary,
+              fontSize: 16,
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Mulai catat pengeluaran atau pemasukanmu',
+            style: Constant.caption.copyWith(color: Constant.textSecondary),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildItem({
-    required String icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () => onTap(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
+  Widget _buildFloatingBottomBar() {
+    return Container(
+      height: 88,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Constant.surfaceDark,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: Constant.shadowLg,
+      ),
+      child: Stack(
         children: [
-          Image.asset(icon, width: 35, height: 35),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: Constant.violet50,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+          // Background indicator for active item
+          // _BottomNavIndicator(),
+          // Nav Items
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                icon: Icons.history,
+                label: "Riwayat",
+                index: 0,
+                onTap: () {
+                  CustomNavigator.push(context, const HistoryView());
+                },
+              ),
+              _buildNavItem(
+                icon: Icons.add,
+                label: "",
+                index: 1,
+                isFab: true,
+                onTap: () {
+                  CustomNavigator.push(context, const TransactionView());
+                },
+              ),
+              _buildNavItem(
+                icon: Icons.analytics_outlined,
+                label: "Insight",
+                index: 2,
+                onTap: () {
+                  CustomNavigator.push(context, const InsightView());
+                },
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required int index,
+    required VoidCallback onTap,
+    bool isFab = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: isFab ? 72 : 80,
+        height: 88,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isFab)
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Constant.limeAccent, Constant.limeAccentDark],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Constant.limeAccent.withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.add, size: 28, color: Colors.white),
+              )
+            else
+              Icon(icon, color: Constant.textWhite, size: 24),
+            if (!isFab) ...[
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: Constant.caption.copyWith(
+                  color: Constant.textWhite,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomNavIndicator extends StatelessWidget {
+  const _BottomNavIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    const margin = 16.0;
+    // Show indicator under History (left item) by default
+    final leftPosition = margin;
+
+    return Positioned(
+      left: leftPosition,
+      bottom: 8,
+      child: Container(
+        width: 60,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Constant.limeAccent,
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
     );
   }
