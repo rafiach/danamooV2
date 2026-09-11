@@ -27,7 +27,7 @@ class SegmentedControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final activeBg = activeColor ?? Constant.limeAccent;
     final inactiveBg = inactiveColor ?? Colors.transparent;
-    final activeText = Constant.textWhite;
+    final activeText = Constant.textPrimary;
     final inactiveText = Constant.textSecondary;
     final bg = backgroundColor ?? Constant.surfaceCard;
     final border = Constant.borderSubtle;

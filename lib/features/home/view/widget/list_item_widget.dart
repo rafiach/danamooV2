@@ -24,7 +24,8 @@ class ListTileTransaction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final amountColor =
-        nominalColor ?? (isIncome ? Constant.limeAccent : Constant.expenseRed);
+        nominalColor ??
+        (isIncome ? Constant.incomeGreenAccentDark : Constant.expenseRed);
 
     return CustomCard.surface(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

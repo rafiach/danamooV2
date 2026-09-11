@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -42,140 +43,147 @@ class _HomeViewState extends State<HomeView> {
     final homeProvider = context.watch<HomeProvider>();
     final homeData = homeProvider.homeModel;
 
-    return Scaffold(
-      bottomNavigationBar: SafeArea(child: _buildFloatingBottomBar()),
-      backgroundColor: Constant.bgNeutral,
-      body: homeProvider.isLoading
-          ? Center(child: CircularProgressIndicator(color: Constant.limeAccent))
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light, // ikon status bar putih
+      child: Scaffold(
+        bottomNavigationBar: SafeArea(child: _buildFloatingBottomBar()),
+        backgroundColor: Constant.bgNeutral,
+        body: homeProvider.isLoading
+            ? Center(
+                child: CircularProgressIndicator(color: Constant.limeAccent),
+              )
+            : Column(
+                children: [
+                  // Black header area (nembus ke status bar)
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Constant.surfaceDark,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(0),
+                        bottom: Radius.circular(24),
+                      ),
+                    ),
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 16,
+                      left: 16,
+                      right: 16,
+                      bottom: 20,
+                    ),
+                    child: Column(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              "DANAMOO",
-                              style: Constant.h4.copyWith(
-                                fontSize: 24,
-                                color: Constant.textPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Intip keuanganmu hari ini !",
-                              style: Constant.bodyMedium.copyWith(
-                                color: Constant.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "DANAMOO",
+                                  style: Constant.h4.copyWith(
+                                    fontSize: 24,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  "Intip keuanganmu hari ini !",
+                                  style: Constant.bodyMedium.copyWith(
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-
-                        InkWell(
-                          onTap: () {
-                            CustomNavigator.push(context, const ProfileView());
-                          },
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Constant.surfaceCard,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Constant.borderSubtle),
-                              boxShadow: Constant.shadowSm,
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.person,
-                                color: Constant.limeAccent,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                        ),
+                        const SizedBox(height: 32),
+                        _buildHeroBalance(homeData),
+                        const SizedBox(height: 16),
+                        _buildCashFlow(homeData),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                  ),
 
-                    // Hero Balance Card
-                    _buildHeroBalance(homeData),
-                    const SizedBox(height: 16),
-
-                    // Cash Flow Cards
-                    _buildCashFlow(homeData),
-                    const SizedBox(height: 24),
-
-                    // Today Transactions Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Transaksi Hari Ini",
-                          style: Constant.textSemiBold.copyWith(
-                            color: Constant.textPrimary,
-                            fontSize: 16,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            CustomNavigator.push(context, const HistoryView());
-                          },
-                          child: Text(
-                            'Lihat Semua',
-                            style: Constant.textMedium.copyWith(
-                              color: Constant.limeAccent,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Today Transactions List
-                    Expanded(
-                      child: homeData?.todayTransactions.isEmpty ?? true
-                          ? _buildEmptyTransactions()
-                          : ListView.separated(
-                              itemCount:
-                                  homeData?.todayTransactions.length ?? 0,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final transaction =
-                                    homeData!.todayTransactions[index];
-                                final isIncome =
-                                    transaction.type == TransactionType.income;
-                                return ListTileTransaction(
-                                  label:
-                                      (transaction.note != null &&
-                                          transaction.note!.isNotEmpty)
-                                      ? transaction.note!
-                                      : transaction.label,
-                                  nominal:
-                                      '${isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
-                                  date: Utils.formatDateTimeToTime(
-                                    transaction.date,
+                  // Konten sisanya (transaksi)
+                  Expanded(
+                    child: SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Transaksi Hari Ini",
+                                  style: Constant.textSemiBold.copyWith(
+                                    color: Constant.textPrimary,
+                                    fontSize: 16,
                                   ),
-                                  icon: transaction.icon.isNotEmpty
-                                      ? transaction.icon
-                                      : Assets.assetsIconsDollar,
-                                  isIncome: isIncome,
-                                );
-                              },
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    CustomNavigator.push(
+                                      context,
+                                      const HistoryView(),
+                                    );
+                                  },
+                                  child: Text(
+                                    'Lihat Semua',
+                                    style: Constant.textMedium.copyWith(
+                                      color: Constant.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: homeData?.todayTransactions.isEmpty ?? true
+                                  ? _buildEmptyTransactions()
+                                  : ListView.separated(
+                                      itemCount:
+                                          homeData?.todayTransactions.length ??
+                                          0,
+                                      separatorBuilder: (context, index) =>
+                                          const SizedBox(height: 8),
+                                      itemBuilder: (context, index) {
+                                        final transaction =
+                                            homeData!.todayTransactions[index];
+                                        final isIncome =
+                                            transaction.type ==
+                                            TransactionType.income;
+                                        return ListTileTransaction(
+                                          label:
+                                              (transaction.note != null &&
+                                                  transaction.note!.isNotEmpty)
+                                              ? transaction.note!
+                                              : transaction.label,
+                                          nominal:
+                                              '${isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
+                                          date: Utils.formatDateTimeToTime(
+                                            transaction.date,
+                                          ),
+                                          icon: transaction.icon.isNotEmpty
+                                              ? transaction.icon
+                                              : Assets.assetsIconsDollar,
+                                          isIncome: isIncome,
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
+      ),
     );
   }
 
@@ -183,7 +191,8 @@ class _HomeViewState extends State<HomeView> {
     return CustomCard.hero(
       borderRadius: 24,
       padding: const EdgeInsets.all(20),
-      borderColor: Constant.limeAccent.withValues(alpha: 0.3),
+      borderColor: Constant.greyDark.withValues(alpha: 0.3),
+      color: Constant.greyDark.withValues(alpha: 0.3),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -209,8 +218,8 @@ class _HomeViewState extends State<HomeView> {
             ],
           ),
           Container(
-            width: 56,
-            height: 56,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: Constant.limeAccent, width: 2),
@@ -219,7 +228,7 @@ class _HomeViewState extends State<HomeView> {
               child: Icon(
                 Icons.account_balance_wallet,
                 color: Constant.limeAccent,
-                size: 28,
+                size: 36,
               ),
             ),
           ),
@@ -229,16 +238,32 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildCashFlow(HomeModel? homeData) {
-    return Row(
-      children: [
-        // Total Income
-        Expanded(
-          child: CustomCard.surface(
-            borderRadius: 16,
-            padding: const EdgeInsets.all(16),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Constant.surfaceDark.withValues(alpha: 0.15),
+        // borderRadius: BorderRadius.circular(16),
+        // border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        children: [
+          // Income
+          Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Constant.incomeGreenAccent.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_downward,
+                    color: Constant.incomeGreenAccent,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,71 +271,38 @@ class _HomeViewState extends State<HomeView> {
                       Text(
                         "Income",
                         style: Constant.bodySmall.copyWith(
-                          color: Constant.textSecondary,
+                          color: Colors.white70,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         Utils.formatIDR(homeData?.totalIncome ?? 0),
                         style: Constant.textSemiBold.copyWith(
-                          color: Constant.limeAccent,
-                          fontSize: 18,
+                          color: Colors.white,
+                          fontSize: 15,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Constant.limeAccent.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.arrow_downward,
-                    color: Constant.limeAccent,
-                    size: 22,
                   ),
                 ),
               ],
             ),
           ),
-        ),
-        const SizedBox(width: 12),
 
-        // Total Expenses
-        Expanded(
-          child: CustomCard.surface(
-            borderRadius: 16,
-            padding: const EdgeInsets.all(16),
+          // Divider tengah
+          Container(
+            width: 1,
+            height: 36,
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            color: Colors.white.withValues(alpha: 0.15),
+          ),
+
+          // Expense
+          Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Expense",
-                        style: Constant.bodySmall.copyWith(
-                          color: Constant.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        Utils.formatIDR(homeData?.totalExpense ?? 0),
-                        style: Constant.textSemiBold.copyWith(
-                          color: Constant.expenseRed,
-                          fontSize: 18,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -320,14 +312,38 @@ class _HomeViewState extends State<HomeView> {
                   child: Icon(
                     Icons.arrow_upward,
                     color: Constant.expenseRed,
-                    size: 22,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Expense",
+                        style: Constant.bodySmall.copyWith(
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        Utils.formatIDR(homeData?.totalExpense ?? 0),
+                        style: Constant.textSemiBold.copyWith(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -340,12 +356,12 @@ class _HomeViewState extends State<HomeView> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Constant.limeAccent.withValues(alpha: 0.1),
+              color: Constant.incomeGreenAccentDark.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.receipt_long_outlined,
-              color: Constant.limeAccent,
+              color: Constant.incomeGreenAccentDark,
               size: 40,
             ),
           ),
@@ -386,20 +402,19 @@ class _HomeViewState extends State<HomeView> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: Icons.history,
-                label: "Riwayat",
+                icon: Icons.receipt_long_outlined,
+                label: "Transaksi",
                 index: 0,
                 onTap: () {
-                  CustomNavigator.push(context, const HistoryView());
+                  CustomNavigator.push(context, const TransactionView());
                 },
               ),
               _buildNavItem(
-                icon: Icons.add,
-                label: "",
+                icon: Icons.history,
+                label: "Riwayat",
                 index: 1,
-                isFab: true,
                 onTap: () {
-                  CustomNavigator.push(context, const TransactionView());
+                  CustomNavigator.push(context, const HistoryView());
                 },
               ),
               _buildNavItem(
@@ -408,6 +423,14 @@ class _HomeViewState extends State<HomeView> {
                 index: 2,
                 onTap: () {
                   CustomNavigator.push(context, const InsightView());
+                },
+              ),
+              _buildNavItem(
+                icon: Icons.person,
+                label: "Profil",
+                index: 3,
+                onTap: () {
+                  CustomNavigator.push(context, const ProfileView());
                 },
               ),
             ],
@@ -429,7 +452,7 @@ class _HomeViewState extends State<HomeView> {
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: isFab ? 72 : 80,
-        height: 88,
+        height: 92,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -455,7 +478,7 @@ class _HomeViewState extends State<HomeView> {
                 child: const Icon(Icons.add, size: 28, color: Colors.white),
               )
             else
-              Icon(icon, color: Constant.textWhite, size: 24),
+              Icon(icon, color: Constant.textWhite, size: 32),
             if (!isFab) ...[
               const SizedBox(height: 4),
               Text(

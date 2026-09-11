@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 class Constant {
   // ================= COLORS - NEW DESIGN SYSTEM =================
-  static const Color limeAccent = Color(0xFF84CC16);
-  static const Color limeAccentLight = Color(0xFFA3E635);
-  static const Color limeAccentDark = Color(0xFF65A30D);
+  static const Color limeAccent = Color(0xFFC8FF25);
+  static const Color limeAccentLight = Color(0xFFD9FF66);
+  static const Color limeAccentDark = Color(0xFFA8D91B);
   static const Color surfaceDark = Color(0xFF1A1A1A);
   static const Color bgNeutral = Color(0xFFFAFAFA);
   static const Color surfaceCard = Colors.white;
   static const Color borderSubtle = Color(0xFFE8E8E8);
   static const Color expenseRed = Color(0xFFEF4444);
   static const Color expenseRedLight = Color(0xFFF87171);
+  static const Color incomeGreenAccent = Color(0xFF71C77E);
+  static const Color incomeGreenAccentLight = Color(0xFF9AD9A3);
+  static const Color incomeGreenAccentDark = Color(0xFF4FAF5F);
 
   // ================= COLORS - BRAND (DEPRECATED - kept for backward compat) =================
   @Deprecated('Use limeAccent instead')
@@ -322,9 +325,15 @@ class Constant {
   static const BorderRadius radiusSmall = BorderRadius.all(Radius.circular(4));
   static const BorderRadius radiusMedium = BorderRadius.all(Radius.circular(8));
   static const BorderRadius radiusLarge = BorderRadius.all(Radius.circular(12));
-  static const BorderRadius radiusXLarge = BorderRadius.all(Radius.circular(16));
-  static const BorderRadius radiusXXLarge = BorderRadius.all(Radius.circular(24));
-  static const BorderRadius radiusRound = BorderRadius.all(Radius.circular(999));
+  static const BorderRadius radiusXLarge = BorderRadius.all(
+    Radius.circular(16),
+  );
+  static const BorderRadius radiusXXLarge = BorderRadius.all(
+    Radius.circular(24),
+  );
+  static const BorderRadius radiusRound = BorderRadius.all(
+    Radius.circular(999),
+  );
 
   // ================= SHADOWS =================
   static const List<BoxShadow> shadowSm = [

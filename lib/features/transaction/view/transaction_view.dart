@@ -142,7 +142,6 @@ class _TransactionViewState extends State<TransactionView> {
       backgroundColor: Constant.bgNeutral,
       appBar: CustomAppBar.standard(
         title: 'Transaksi',
-        centerTitle: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => CustomNavigator.pop(context),
@@ -157,7 +156,10 @@ class _TransactionViewState extends State<TransactionView> {
             Expanded(
               child: provider.isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: Constant.limeAccent))
+                      child: CircularProgressIndicator(
+                        color: Constant.limeAccentDark,
+                      ),
+                    )
                   : SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -167,10 +169,14 @@ class _TransactionViewState extends State<TransactionView> {
                           SegmentedControl(
                             labels: const ['Pemasukan', 'Pengeluaran'],
                             selectedIndex: provider.isExpense ? 1 : 0,
-                            onChanged: (index) =>
-                                provider.setType(index == 0 ? TransactionType.income : TransactionType.expense),
+                            onChanged: (index) => provider.setType(
+                              index == 0
+                                  ? TransactionType.income
+                                  : TransactionType.expense,
+                            ),
                             borderRadius: 24,
                             height: 50,
+                            backgroundColor: Constant.greyLight,
                           ),
                           const SizedBox(height: 24),
 
@@ -217,7 +223,9 @@ class _TransactionViewState extends State<TransactionView> {
                               Expanded(
                                 child: _DateTimeField(
                                   label: 'TANGGAL',
-                                  value: Utils.formatDate(_selectedDateTime),
+                                  value: Utils.formatDateShort(
+                                    _selectedDateTime,
+                                  ),
                                   icon: Icons.calendar_today_outlined,
                                   onTap: _pickDate,
                                 ),
@@ -235,7 +243,9 @@ class _TransactionViewState extends State<TransactionView> {
                             ],
                           ),
 
-                          const SizedBox(height: 100), // Space for floating button
+                          const SizedBox(
+                            height: 100,
+                          ), // Space for floating button
                         ],
                       ),
                     ),
@@ -248,6 +258,8 @@ class _TransactionViewState extends State<TransactionView> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: CustomButton.mainButton(
                   label: 'Simpan',
+                  textColor: Constant.textPrimary,
+                  fontSize: 16,
                   onPressed: _onSubmit,
                   isLoading: provider.isSaving,
                   height: 56,
@@ -318,37 +330,35 @@ class _CategoryChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: Constant.durationShort,
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? Constant.limeAccent.withValues(alpha: 0.15)
+              ? Constant.limeAccentDark.withValues(alpha: 0.15)
               : Colors.transparent,
           border: Border.all(
-            color: isSelected ? Constant.limeAccent : Constant.borderSubtle,
+            color: isSelected ? Constant.limeAccentDark : Constant.borderSubtle,
             width: isSelected ? 2 : 1.5,
           ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                isSelected ? Constant.limeAccent : Constant.textSecondary,
-                BlendMode.srcIn,
-              ),
-              child: Image.asset(category.icon, width: 22, height: 22),
-            ),
+            Image.asset(category.icon, width: 22, height: 22),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 category.name,
                 style: TextStyle(
-                  color: isSelected ? Constant.limeAccent : Constant.textSecondary,
+                  color: isSelected
+                      ? Constant.textPrimary
+                      : Constant.textSecondary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 13,
                 ),
+                textAlign: TextAlign.start,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -388,13 +398,13 @@ class _DateTimeField extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: Constant.surfaceCard,
+              color: Constant.greyLight,
               border: Border.all(color: Constant.borderSubtle, width: 1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: Constant.limeAccent),
+                Icon(icon, size: 20, color: Constant.limeAccentDark),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
