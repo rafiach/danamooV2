@@ -763,11 +763,11 @@ class Utils {
 
   // Empty state
   static Center emptyState(
-    String imagePath,
+    Widget visual,
     String header,
     String description, {
-    double imageWidth = 200,
-    double imageHeight = 200,
+    double visualWidth = 200,
+    double visualHeight = 200,
     Color textColor = Colors.grey,
   }) {
     return Center(
@@ -777,11 +777,10 @@ class Utils {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(
-              imagePath,
-              width: imageWidth,
-              height: imageHeight,
-              fit: BoxFit.contain,
+            SizedBox(
+              width: visualWidth,
+              height: visualHeight,
+              child: Center(child: visual),
             ),
             const SizedBox(height: 24),
             Text(

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../core/constants/constant.dart';
 import '../../../../../core/utils/utils.dart';
@@ -92,14 +93,19 @@ class CashFlowTab extends StatelessWidget {
                         minY: 0,
                         maxY: maxY,
                         lineBarsData: [
-                          _buildLine(incomeData, Constant.limeAccent),
+                          _buildLine(
+                            incomeData,
+                            Constant.incomeGreenAccentDark,
+                          ),
                           _buildLine(expenseData, Constant.expenseRed),
                         ],
                         lineTouchData: LineTouchData(
                           touchTooltipData: LineTouchTooltipData(
                             getTooltipColor: (_) => Colors.blueGrey.shade800,
                             getTooltipItems: (spots) => spots.map((s) {
-                              final label = s.barIndex == 0 ? 'Income' : 'Expense';
+                              final label = s.barIndex == 0
+                                  ? 'Income'
+                                  : 'Expense';
                               return LineTooltipItem(
                                 '$label\n${Utils.formatIDR(s.y)}',
                                 TextStyle(
@@ -122,9 +128,15 @@ class CashFlowTab extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      InsightLegendDot(color: Constant.limeAccent, label: 'Income'),
+                      InsightLegendDot(
+                        color: Constant.incomeGreenAccentDark,
+                        label: 'Income',
+                      ),
                       SizedBox(width: 20),
-                      InsightLegendDot(color: Constant.expenseRed, label: 'Expense'),
+                      InsightLegendDot(
+                        color: Constant.expenseRed,
+                        label: 'Expense',
+                      ),
                     ],
                   ),
                 ),
@@ -168,7 +180,7 @@ class CashFlowTab extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Constant.limeAccent,
+                        color: Constant.incomeGreenAccentDark,
                       ),
                     ),
                   ],
@@ -186,12 +198,15 @@ class CashFlowTab extends StatelessWidget {
                     ),
                     FractionallySizedBox(
                       widthFactor: totalIncome > 0
-                          ? (totalIncome / (totalIncome + totalExpense)).clamp(0.0, 1.0)
+                          ? (totalIncome / (totalIncome + totalExpense)).clamp(
+                              0.0,
+                              1.0,
+                            )
                           : 0.0,
                       child: Container(
                         height: 12,
                         decoration: BoxDecoration(
-                          color: Constant.limeAccent,
+                          color: Constant.incomeGreenAccentDark,
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
@@ -235,7 +250,10 @@ class CashFlowTab extends StatelessWidget {
                     ),
                     FractionallySizedBox(
                       widthFactor: totalExpense > 0
-                          ? (totalExpense / (totalIncome + totalExpense)).clamp(0.0, 1.0)
+                          ? (totalExpense / (totalIncome + totalExpense)).clamp(
+                              0.0,
+                              1.0,
+                            )
                           : 0.0,
                       child: Container(
                         height: 12,
@@ -264,7 +282,11 @@ class CashFlowTab extends StatelessWidget {
         border: Border.all(color: Constant.borderSubtle),
       ),
       child: Utils.emptyState(
-        'assets/icons/cow_mascot_empty.png',
+        Icon(
+          LucideIcons.databaseX600,
+          size: 100,
+          color: Constant.limeAccentDark,
+        ),
         "Insight kosong",
         "Tidak ada transaksi di bulan ini",
         textColor: Constant.textSecondary,

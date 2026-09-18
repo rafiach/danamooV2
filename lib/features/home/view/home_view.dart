@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -168,9 +169,8 @@ class _HomeViewState extends State<HomeView> {
                                           date: Utils.formatDateTimeToTime(
                                             transaction.date,
                                           ),
-                                          icon: transaction.icon.isNotEmpty
-                                              ? transaction.icon
-                                              : Assets.assetsIconsDollar,
+                                          icon: transaction.icon,
+                                          bgColor: transaction.color,
                                           isIncome: isIncome,
                                         );
                                       },

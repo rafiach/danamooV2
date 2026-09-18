@@ -1,3 +1,4 @@
+import 'package:danamoo/core/constants/constant.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppBar {
@@ -25,7 +26,29 @@ class CustomAppBar {
       backgroundColor: backgroundColor ?? Colors.white,
       foregroundColor: foregroundColor ?? const Color(0xFF212121),
       elevation: elevation,
-      leading: leading,
+      leadingWidth: 56,
+      leading: leading == null
+          ? null
+          : Center(
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Constant.greyDark.withValues(alpha: 0.3),
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                ),
+                child: IconButtonTheme(
+                  data: IconButtonThemeData(
+                    style: IconButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(40, 40),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                  child: leading,
+                ),
+              ),
+            ),
       actions: actions,
       bottom: bottom,
     );

@@ -7,7 +7,8 @@ class ListTileTransaction extends StatelessWidget {
   final String label;
   final String nominal;
   final String date;
-  final String icon;
+  final Icon icon;
+  final Color bgColor;
   final Color? nominalColor;
   final bool isIncome;
 
@@ -17,6 +18,7 @@ class ListTileTransaction extends StatelessWidget {
     required this.nominal,
     required this.date,
     required this.icon,
+    this.bgColor = Constant.limeAccentDark,
     this.nominalColor,
     this.isIncome = false,
   });
@@ -35,10 +37,7 @@ class ListTileTransaction extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: Constant.limeAccent.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
             child: Center(
               // child: ColorFiltered(
               //   colorFilter: const ColorFilter.mode(
@@ -47,7 +46,7 @@ class ListTileTransaction extends StatelessWidget {
               //   ),
               //   child: Image.asset(icon, width: 22, height: 22),
               // ),
-              child: Image.asset(icon, width: 22, height: 22),
+              child: icon,
             ),
           ),
           const SizedBox(width: 12),

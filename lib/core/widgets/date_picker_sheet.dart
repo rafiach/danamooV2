@@ -38,7 +38,8 @@ class _DatePickerSheetContent extends StatefulWidget {
   });
 
   @override
-  State<_DatePickerSheetContent> createState() => _DatePickerSheetContentState();
+  State<_DatePickerSheetContent> createState() =>
+      _DatePickerSheetContentState();
 }
 
 class _DatePickerSheetContentState extends State<_DatePickerSheetContent> {
@@ -86,7 +87,9 @@ class _DatePickerSheetContentState extends State<_DatePickerSheetContent> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     'Batal',
-                    style: Constant.textMedium.copyWith(color: Constant.limeAccent),
+                    style: Constant.textMedium.copyWith(
+                      color: Constant.expenseRed,
+                    ),
                   ),
                 ),
               ],
@@ -110,6 +113,8 @@ class _DatePickerSheetContentState extends State<_DatePickerSheetContent> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: CustomButton.mainButton(
               label: 'OK',
+              color: Constant.limeAccentDark,
+              textColor: Constant.textPrimary,
               onPressed: () => Navigator.pop(context, _selectedDate),
               height: 52,
               borderRadius: 16,

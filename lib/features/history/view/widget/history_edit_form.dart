@@ -51,8 +51,9 @@ class HistoryEditForm extends StatelessWidget {
         SegmentedControl(
           labels: const ['Pemasukan', 'Pengeluaran'],
           selectedIndex: _isExpense ? 1 : 0,
-          onChanged: (index) =>
-              onTypeChanged(index == 0 ? TransactionType.income : TransactionType.expense),
+          onChanged: (index) => onTypeChanged(
+            index == 0 ? TransactionType.income : TransactionType.expense,
+          ),
           borderRadius: 24,
           height: 50,
         ),
@@ -109,10 +110,7 @@ class HistoryEditForm extends StatelessWidget {
         // Date Field
         _SectionLabel('TANGGAL'),
         const SizedBox(height: 8),
-        _DateField(
-          selectedDate: selectedDate,
-          onDateChanged: onDateChanged,
-        ),
+        _DateField(selectedDate: selectedDate, onDateChanged: onDateChanged),
       ],
     );
   }
@@ -155,37 +153,35 @@ class _CategoryChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: Constant.durationShort,
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? Constant.limeAccent.withValues(alpha: 0.15)
+              ? Constant.limeAccentDark.withValues(alpha: 0.15)
               : Colors.transparent,
           border: Border.all(
-            color: isSelected ? Constant.limeAccent : Constant.borderSubtle,
+            color: isSelected ? Constant.limeAccentDark : Constant.borderSubtle,
             width: isSelected ? 2 : 1.5,
           ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                isSelected ? Constant.limeAccent : Constant.textSecondary,
-                BlendMode.srcIn,
-              ),
-              child: Image.asset(category.icon, width: 22, height: 22),
-            ),
+            category.icon,
             const SizedBox(width: 8),
             Flexible(
               child: Text(
                 category.name,
                 style: TextStyle(
-                  color: isSelected ? Constant.limeAccent : Constant.textSecondary,
+                  color: isSelected
+                      ? Constant.textPrimary
+                      : Constant.textSecondary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 13,
                 ),
+                textAlign: TextAlign.start,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -223,7 +219,11 @@ class _DateField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today_outlined, size: 20, color: Constant.limeAccent),
+            Icon(
+              Icons.calendar_today_outlined,
+              size: 20,
+              color: Constant.limeAccent,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(

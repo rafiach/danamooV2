@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../core/constants/constant.dart';
 import '../../../../../core/utils/utils.dart';
@@ -83,8 +84,11 @@ class _SpendingTabState extends State<SpendingTab> {
                               // Get category color from CategoryModel
                               final categoryName = entries[i].key;
                               final category = CategoryModel.expenseCategories
-                                  .firstWhere((c) => c.name == categoryName,
-                                      orElse: () => CategoryModel.expenseCategories.first);
+                                  .firstWhere(
+                                    (c) => c.name == categoryName,
+                                    orElse: () =>
+                                        CategoryModel.expenseCategories.first,
+                                  );
                               final color = category.color;
                               final pct = entries[i].value / total * 100;
                               return PieChartSectionData(
@@ -134,10 +138,11 @@ class _SpendingTabState extends State<SpendingTab> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
 
           // Legend Grid
           GridView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            // padding: const EdgeInsets.symmetric(horizontal: 16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 12,
@@ -149,9 +154,10 @@ class _SpendingTabState extends State<SpendingTab> {
             itemCount: entries.length,
             itemBuilder: (context, i) {
               final categoryName = entries[i].key;
-              final category = CategoryModel.expenseCategories
-                  .firstWhere((c) => c.name == categoryName,
-                      orElse: () => CategoryModel.expenseCategories.first);
+              final category = CategoryModel.expenseCategories.firstWhere(
+                (c) => c.name == categoryName,
+                orElse: () => CategoryModel.expenseCategories.first,
+              );
               final color = category.color;
               final pct = entries[i].value / total * 100;
               return CustomCard.surface(
@@ -180,7 +186,7 @@ class _SpendingTabState extends State<SpendingTab> {
                               fontWeight: FontWeight.w600,
                               color: Constant.textPrimary,
                             ),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -202,7 +208,7 @@ class _SpendingTabState extends State<SpendingTab> {
                       '${pct.toStringAsFixed(1)}%',
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Constant.limeAccent,
+                        color: Constant.incomeGreenAccentDark,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -225,7 +231,11 @@ class _SpendingTabState extends State<SpendingTab> {
         border: Border.all(color: Constant.borderSubtle),
       ),
       child: Utils.emptyState(
-        'assets/icons/cow_mascot_empty.png',
+        Icon(
+          LucideIcons.databaseX600,
+          size: 100,
+          color: Constant.limeAccentDark,
+        ),
         "Insight kosong",
         "Tidak ada transaksi di bulan ini",
         textColor: Constant.textSecondary,

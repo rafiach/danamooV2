@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -112,47 +113,57 @@ class _HistoryViewState extends State<HistoryView> {
               // Transaction List
               Expanded(
                 child: provider.isLoading
-                    ? const Center(child: CircularProgressIndicator(color: Constant.limeAccent))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Constant.limeAccent,
+                        ),
+                      )
                     : filteredTransactions.isEmpty
-                        ? _buildEmptyState()
-                        : RefreshIndicator(
-                            color: Constant.limeAccent,
-                            backgroundColor: Constant.surfaceCard,
-                            onRefresh: _loadData,
-                            child: ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: filteredTransactions.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final tx = filteredTransactions[index];
-                                final label = (tx.transaction.note != null &&
-                                        tx.transaction.note!.isNotEmpty)
-                                    ? tx.transaction.note!
-                                    : (tx.category?.name ?? 'Unknown');
+                    ? _buildEmptyState()
+                    : RefreshIndicator(
+                        color: Constant.limeAccent,
+                        backgroundColor: Constant.surfaceCard,
+                        onRefresh: _loadData,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: filteredTransactions.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final tx = filteredTransactions[index];
+                            final label =
+                                (tx.transaction.note != null &&
+                                    tx.transaction.note!.isNotEmpty)
+                                ? tx.transaction.note!
+                                : (tx.category?.name ?? 'Unknown');
 
-                                final isIncome =
-                                    tx.transaction.type == TransactionType.income;
-                                return InkWell(
-                                  onTap: () {
-                                    CustomNavigator.push(
-                                      context,
-                                      DetailHistoryView(data: tx),
-                                    ).then((result) {
-                                      if (result == true) _loadData();
-                                    });
-                                  },
-                                  child: ListTileTransaction(
-                                    label: label,
-                                    nominal: Utils.formatIDR(tx.transaction.amount),
-                                    date: Utils.formatDateShort(tx.transaction.date),
-                                    icon: tx.category?.icon ?? Assets.assetsIconsDollar,
-                                    isIncome: isIncome,
-                                  ),
-                                );
+                            final isIncome =
+                                tx.transaction.type == TransactionType.income;
+                            return InkWell(
+                              onTap: () {
+                                CustomNavigator.push(
+                                  context,
+                                  DetailHistoryView(data: tx),
+                                ).then((result) {
+                                  if (result == true) _loadData();
+                                });
                               },
-                            ),
-                          ),
+                              child: ListTileTransaction(
+                                label: label,
+                                nominal: Utils.formatIDR(tx.transaction.amount),
+                                date: Utils.formatDateShort(
+                                  tx.transaction.date,
+                                ),
+                                icon:
+                                    tx.category?.icon ??
+                                    Icon(LucideIcons.coins),
+                                bgColor: tx.category!.bgColor,
+                                isIncome: isIncome,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
               ),
             ],
           ),
@@ -189,18 +200,18 @@ class _HistoryViewState extends State<HistoryView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.calendar_month_rounded,
+              LucideIcons.calendarDays500,
               color: provider.selectedDate != null
-                  ? Constant.textWhite
-                  : Constant.limeAccent,
+                  ? Constant.textPrimary
+                  : Constant.limeAccentDark,
               size: 24,
             ),
             if (provider.selectedDate != null) ...[
               const SizedBox(width: 8),
               Text(
-                DateFormat('MMM yyyy', 'id_ID').format(provider.selectedDate!),
+                DateFormat('dd MMM', 'id_ID').format(provider.selectedDate!),
                 style: Constant.textSemiBold.copyWith(
-                  color: Constant.textWhite,
+                  color: Constant.textPrimary,
                   fontSize: 13,
                 ),
               ),
@@ -208,9 +219,9 @@ class _HistoryViewState extends State<HistoryView> {
               GestureDetector(
                 onTap: provider.clearDate,
                 child: const Icon(
-                  Icons.close_rounded,
+                  LucideIcons.x500,
                   size: 18,
-                  color: Constant.textWhite,
+                  color: Constant.textPrimary,
                 ),
               ),
             ],
@@ -284,7 +295,7 @@ class _HistoryViewState extends State<HistoryView> {
               ),
               child: Icon(
                 Icons.receipt_long_outlined,
-                color: Constant.limeAccent,
+                color: Constant.limeAccentDark,
                 size: 40,
               ),
             ),
@@ -299,9 +310,7 @@ class _HistoryViewState extends State<HistoryView> {
             const SizedBox(height: 4),
             Text(
               'Coba ubah filter atau cari dengan kata kunci lain',
-              style: Constant.caption.copyWith(
-                color: Constant.textSecondary,
-              ),
+              style: Constant.caption.copyWith(color: Constant.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -313,7 +322,7 @@ class _HistoryViewState extends State<HistoryView> {
 
 class _FilterChip extends StatelessWidget {
   final String label;
-  final String? icon;
+  final Icon? icon;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -346,19 +355,15 @@ class _FilterChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              ColorFiltered(
-                colorFilter: ColorFilter.mode(
-                  isSelected ? Constant.limeAccent : Constant.textSecondary,
-                  BlendMode.srcIn,
-                ),
-                child: Image.asset(icon!, width: 18, height: 18),
-              ),
+              Container(child: icon),
               const SizedBox(width: 6),
             ],
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Constant.limeAccent : Constant.textSecondary,
+                color: isSelected
+                    ? Constant.textPrimary
+                    : Constant.textSecondary,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 fontSize: 13,
               ),

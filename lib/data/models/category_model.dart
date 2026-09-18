@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/constant.dart';
-import '../../generated/assets.dart';
 import 'transaction_model.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class CategoryModel {
   final String id;
   final String name;
-  final String icon;
+  final Icon icon;
   final Color color;
   final Color bgColor;
   final TransactionType type;
@@ -26,7 +26,7 @@ class CategoryModel {
     CategoryModel(
       id: 'inc_1',
       name: 'Income',
-      icon: Assets.assetsIconsCoin,
+      icon: Icon(LucideIcons.wallet),
       color: Constant.incomePrime,
       bgColor: Constant.transportSecond,
       type: TransactionType.income,
@@ -37,7 +37,7 @@ class CategoryModel {
     CategoryModel(
       id: 'exp_1',
       name: 'Makanan & Minuman',
-      icon: Assets.assetsIconsHamburger,
+      icon: Icon(LucideIcons.salad),
       color: Constant.foodsPrime,
       bgColor: Constant.foodsSecond,
       type: TransactionType.expense,
@@ -45,7 +45,7 @@ class CategoryModel {
     CategoryModel(
       id: 'exp_2',
       name: 'Transportasi',
-      icon: Assets.assetsIconsBus,
+      icon: Icon(LucideIcons.carFront),
       color: Constant.transportPrime,
       bgColor: Constant.transportSecond,
       type: TransactionType.expense,
@@ -53,7 +53,7 @@ class CategoryModel {
     CategoryModel(
       id: 'exp_3',
       name: 'Belanja',
-      icon: Assets.assetsIconsShoppingBag,
+      icon: Icon(LucideIcons.shoppingBag),
       color: Constant.shoppingPrime,
       bgColor: Constant.shoppingSecond,
       type: TransactionType.expense,
@@ -61,7 +61,7 @@ class CategoryModel {
     CategoryModel(
       id: 'exp_4',
       name: 'Tagihan',
-      icon: Assets.assetsIconsCreditCard,
+      icon: Icon(LucideIcons.creditCard),
       color: Constant.billsPrime,
       bgColor: Constant.billsSecond,
       type: TransactionType.expense,
@@ -69,7 +69,7 @@ class CategoryModel {
     CategoryModel(
       id: 'exp_5',
       name: 'Hiburan',
-      icon: Assets.assetsIconsController,
+      icon: Icon(LucideIcons.clapperboard),
       color: Constant.entertainPrime,
       bgColor: Constant.entertainSecond,
       type: TransactionType.expense,
@@ -77,7 +77,7 @@ class CategoryModel {
     CategoryModel(
       id: 'exp_7',
       name: 'Lain-lain',
-      icon: Assets.assetsIconsCoin,
+      icon: Icon(LucideIcons.coins),
       color: Constant.otherPrime,
       bgColor: Constant.otherSecond,
       type: TransactionType.expense,

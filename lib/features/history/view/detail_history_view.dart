@@ -1,5 +1,6 @@
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -169,15 +170,17 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
         backgroundColor: Constant.surfaceCard,
         foregroundColor: Constant.textPrimary,
         actions: [
-          if (_isEditing)
+          if (_isEditing) ...[
             IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(LucideIcons.x500),
               onPressed: _cancelEdit,
             ),
-          IconButton(
-            icon: Icon(_isEditing ? Icons.check : Icons.edit),
-            onPressed: _toggleEdit,
-          ),
+          ] else ...[
+            IconButton(
+              icon: const Icon(LucideIcons.pencilLine500),
+              onPressed: _toggleEdit,
+            ),
+          ],
         ],
       ),
       body: GestureDetector(
@@ -224,6 +227,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   child: CustomButton.mainButton(
                     label: 'Simpan',
+                    textColor: Constant.textPrimary,
+                    fontSize: 16,
                     onPressed: _saveChanges,
                     height: 56,
                     borderRadius: 16,

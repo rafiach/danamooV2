@@ -114,11 +114,15 @@ class _TransactionViewState extends State<TransactionView> {
       }
 
       if (user?.notifEnabled == true) {
-        NotificationService.showNotification(
+        final isIncome = !provider.isExpense;
+        NotificationService.showTransactionNotification(
           id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-          title: 'Transaksi Berhasil! 🎉',
+          title: isIncome
+              ? 'Pemasukan Tercatat! 💰'
+              : 'Pengeluaran Tercatat! 🧾',
           body:
-              'Data ${provider.isExpense ? "pengeluaran" : "pemasukan"} sebesar ${Utils.formatIDR(amount)} telah dicatat.',
+              '${isIncome ? "Pemasukan" : "Pengeluaran"} sebesar ${Utils.formatIDR(amount)} telah dicatat.',
+          isIncome: isIncome,
         );
       }
 
@@ -345,7 +349,7 @@ class _CategoryChip extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(category.icon, width: 22, height: 22),
+            category.icon,
             const SizedBox(width: 8),
             Flexible(
               child: Text(

@@ -74,7 +74,9 @@ class _InsightViewState extends State<InsightView>
               Expanded(
                 child: provider.isLoading || model == null
                     ? const Center(
-                        child: CircularProgressIndicator(color: Constant.limeAccent),
+                        child: CircularProgressIndicator(
+                          color: Constant.limeAccentDark,
+                        ),
                       )
                     : TabBarView(
                         controller: _tabController,
@@ -179,12 +181,12 @@ class _InsightViewState extends State<InsightView>
         child: TabBar(
           controller: _tabController,
           indicator: BoxDecoration(
-            color: Constant.limeAccent,
+            color: Constant.limeAccentDark,
             borderRadius: BorderRadius.circular(12),
           ),
           indicatorSize: TabBarIndicatorSize.tab,
           dividerColor: Colors.transparent,
-          labelColor: Constant.textWhite,
+          labelColor: Constant.textPrimary,
           unselectedLabelColor: Constant.textSecondary,
           labelStyle: const TextStyle(
             fontSize: 13,

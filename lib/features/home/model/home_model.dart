@@ -5,7 +5,7 @@ import 'package:danamoo/data/models/transaction_model.dart';
 class TransactionItem {
   final String id;
   final String label;
-  final String icon;
+  final Icon icon;
   final Color color;
   final double amount;
   final DateTime date;

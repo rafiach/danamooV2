@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../constants/constant.dart';
 
@@ -157,7 +158,7 @@ class CustomTextField {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hint ?? 'Cari...',
-        prefixIcon: const Icon(Icons.search, size: 20),
+        prefixIcon: const Icon(LucideIcons.search, size: 20),
         suffixIcon: controller?.text.isNotEmpty ?? false
             ? IconButton(
                 icon: const Icon(Icons.clear, size: 20),

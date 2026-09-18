@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../core/constants/constant.dart';
 import '../../../../../core/utils/utils.dart';
@@ -30,7 +31,10 @@ class BalanceTab extends StatelessWidget {
     final double pad = range == 0 ? 100.0 : range * 0.15;
     final double maxY = maxBalance > 0 ? maxBalance + pad : 100.0;
     final double minY = minBalance < 0 ? minBalance - pad : 0.0;
-    final double yInterval = ((maxY - minY) / 4).abs().clamp(1.0, double.infinity);
+    final double yInterval = ((maxY - minY) / 4).abs().clamp(
+      1.0,
+      double.infinity,
+    );
     final int totalDays = dayLabels.length;
     final int xStep = (totalDays / 5).ceil();
 
@@ -97,13 +101,15 @@ class BalanceTab extends StatelessWidget {
                             isCurved: true,
                             curveSmoothness: 0.2,
                             preventCurveOverShooting: true,
-                            color: Constant.limeAccent,
+                            color: Constant.incomeGreenAccentDark,
                             barWidth: 3,
                             isStrokeCapRound: true,
                             dotData: const FlDotData(show: false),
                             belowBarData: BarAreaData(
                               show: true,
-                              color: Constant.limeAccent.withValues(alpha: 0.08),
+                              color: Constant.incomeGreenAccentDark.withValues(
+                                alpha: 0.08,
+                              ),
                             ),
                           ),
                         ],
@@ -154,13 +160,15 @@ class BalanceTab extends StatelessWidget {
                       ),
                     ),
                     FractionallySizedBox(
-                      widthFactor: ((balanceData.last - balanceData.reduce(min)) /
-                              (balanceData.reduce(max) - balanceData.reduce(min)))
-                          .clamp(0.0, 1.0),
+                      widthFactor:
+                          ((balanceData.last - balanceData.reduce(min)) /
+                                  (balanceData.reduce(max) -
+                                      balanceData.reduce(min)))
+                              .clamp(0.0, 1.0),
                       child: Container(
                         height: 24,
                         decoration: BoxDecoration(
-                          color: Constant.limeAccent,
+                          color: Constant.incomeGreenAccentDark,
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -184,7 +192,11 @@ class BalanceTab extends StatelessWidget {
         border: Border.all(color: Constant.borderSubtle),
       ),
       child: Utils.emptyState(
-        'assets/icons/cow_mascot_empty.png',
+        Icon(
+          LucideIcons.databaseX600,
+          size: 100,
+          color: Constant.limeAccentDark,
+        ),
         "Insight kosong",
         "Tidak ada transaksi di bulan ini",
         textColor: Constant.textSecondary,
