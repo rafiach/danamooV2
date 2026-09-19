@@ -1,3 +1,4 @@
+import 'package:danamoo/quick_add_main.dart';
 import 'package:danamoo/core/constants/constant.dart';
 import 'package:danamoo/core/services/notification_service.dart';
 import 'package:danamoo/core/services/storage_service.dart';
@@ -45,6 +46,12 @@ void main() async {
 
   runApp(MyApp(storage: storage));
 }
+
+// Referensi ini WAJIB ada, jangan dihapus.
+// Dipakai secara tidak langsung oleh QuickAddActivity (native Android) lewat
+// getDartEntrypointFunctionName() — bukan dipanggil dari Dart sama sekali.
+// ignore: unused_element
+final void Function() kQuickAddEntryPointRef = quickAddMain;
 
 class MyApp extends StatelessWidget {
   final StorageService storage;
