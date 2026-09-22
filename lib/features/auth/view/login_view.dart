@@ -1,3 +1,4 @@
+import 'package:danamoo/features/auth/view/widget/auth_header.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,10 +39,7 @@ class _LoginViewState extends State<LoginView> {
     );
 
     if (!success && mounted) {
-      Utils.showErrorSnackbar(
-        context,
-        auth.errorMessage ?? 'Login gagal',
-      );
+      Utils.showErrorSnackbar(context, auth.errorMessage ?? 'Login gagal');
     }
   }
 
@@ -50,107 +48,131 @@ class _LoginViewState extends State<LoginView> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: Constant.bgNeutral,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Text(
-                  'Selamat Datang',
-                  style: Constant.h3.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Constant.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Masuk untuk melanjutkan',
-                  style: Constant.bodyMedium.copyWith(
-                    color: Constant.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 40),
+      backgroundColor: Colors.white, // samakan dengan register
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const AuthHeader(
+                      title: 'Yuk, Lanjutin!',
+                      subtitle: 'Masuk dulu buat lanjut pantau keuanganmu',
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Email Field
+                          CustomTextField.standard(
+                            controller: _emailController,
+                            label: 'Email',
+                            hint: 'contoh@email.com',
+                            prefixIcon: Icons.email_outlined,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email tidak boleh kosong';
+                              }
+                              if (!RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              ).hasMatch(value)) {
+                                return 'Format email tidak valid';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
 
-                // Email Field
-                CustomTextField.standard(
-                  controller: _emailController,
-                  label: 'Email',
-                  hint: 'contoh@email.com',
-                  prefixIcon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email tidak boleh kosong';
-                    }
-                    if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(value)) {
-                      return 'Format email tidak valid';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
+                          // Password Field
+                          CustomTextField.password(
+                            controller: _passwordController,
+                            label: 'Password',
+                            hint: 'Masukkan password',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Password tidak boleh kosong';
+                              }
+                              if (value.length < 8) {
+                                return 'Password minimal 8 karakter';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
 
-                // Password Field
-                CustomTextField.password(
-                  controller: _passwordController,
-                  label: 'Password',
-                  hint: 'Masukkan password',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password tidak boleh kosong';
-                    }
-                    if (value.length < 8) {
-                      return 'Password minimal 8 karakter';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32),
-
-                // Login Button
-                CustomButton.mainButton(
-                  label: 'Masuk',
-                  onPressed: _onLogin,
-                  isLoading: auth.isLoading,
-                  height: 56,
-                  borderRadius: 16,
-                ),
-                const SizedBox(height: 24),
-
-                // Register Link
-                Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Belum punya akun? ',
-                        style: Constant.bodyMedium.copyWith(
-                          color: Constant.textSecondary,
-                        ),
+                          // Lupa Password
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                // TODO: sambungkan ke flow reset password
+                              },
+                              child: Text(
+                                'Lupa Password?',
+                                style: Constant.textSemiBold.copyWith(
+                                  color: Constant.limeAccent,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      GestureDetector(
-                        onTap: () =>
-                            CustomNavigator.push(context, const RegisterView()),
-                        child: Text(
-                          'Daftar',
-                          style: Constant.textSemiBold.copyWith(
-                            color: Constant.limeAccent,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Bottom: tombol + link daftar
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CustomButton.mainButton(
+                      label: 'Masuk',
+                      onPressed: _onLogin,
+                      isLoading: auth.isLoading,
+                      height: 56,
+                      borderRadius: 16,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Belum punya akun? ',
+                          style: Constant.bodyMedium.copyWith(
+                            color: Constant.textSecondary,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                        GestureDetector(
+                          onTap: () => CustomNavigator.push(
+                            context,
+                            const RegisterView(),
+                          ),
+                          child: Text(
+                            'Daftar',
+                            style: Constant.textSemiBold.copyWith(
+                              color: Constant.limeAccent,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
