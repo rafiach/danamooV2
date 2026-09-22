@@ -17,10 +17,7 @@ class _SplashViewState extends State<SplashView> {
   }
 
   Future<void> _init() async {
-    await Future.wait([
-      context.read<AuthProvider>().checkSession(),
-      Future.delayed(const Duration(seconds: 2)),
-    ]);
+    await Future.wait([context.read<AuthProvider>().checkSession()]);
   }
 
   @override

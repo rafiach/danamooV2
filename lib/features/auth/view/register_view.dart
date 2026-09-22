@@ -1,4 +1,5 @@
 import 'package:danamoo/features/auth/view/widget/auth_header.dart';
+import 'package:danamoo/generated/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -41,8 +42,22 @@ class _RegisterViewState extends State<RegisterView> {
       password: _passwordController.text,
     );
 
-    if (!success && mounted) {
-      Utils.showErrorSnackbar(context, auth.errorMessage ?? 'Registrasi gagal');
+    if (!mounted) return;
+
+    if (success) {
+      Utils.showAutoDismissDialog(
+        context,
+        title: "Registrasi Berhasil!",
+        content: "Akun kamu Berhasil dibuat. Silahkan login untuk melanjutkan",
+        imagePath: Assets.assetsIconsSuccess,
+      );
+    } else {
+      Utils.showAutoDismissDialog(
+        context,
+        title: "Registrasi Gagal!",
+        content: auth.errorMessage ?? "Silahkan Registrasi Ulang",
+        imagePath: Assets.assetsIconsError,
+      );
     }
   }
 

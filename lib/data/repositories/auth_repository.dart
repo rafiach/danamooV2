@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:danamoo/core/services/storage_service.dart';
 import 'package:danamoo/data/models/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// Hasil dari setiap operasi auth
 class AuthResult {
@@ -49,8 +50,7 @@ class AuthRepository {
         // field lain pakai default value dari UserModel
       );
 
-      // Cache user ke local storage
-      await _storage.setLoggedIn(true);
+      // Cache user ke local storag
       await _storage.saveUser(newUser.toJson());
 
       return AuthResult(success: true, user: newUser);
@@ -98,8 +98,6 @@ class AuthRepository {
           updatedAt: now,
         );
       }
-
-      await _storage.setLoggedIn(true);
       await _storage.saveUser(user.toJson());
 
       return AuthResult(success: true, user: user);
@@ -110,6 +108,48 @@ class AuthRepository {
         success: false,
         message: 'Terjadi kesalahan: ${e.toString()}',
       );
+    }
+  }
+
+  // ================= Google Login =================
+  Future<AuthResult> loginWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        return AuthResult(success: false, message: 'Login dibatalkan');
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCred = await _firebaseAuth.signInWithCredential(credential);
+      final firebaseUser = userCred.user;
+      if (firebaseUser == null) {
+        return AuthResult(success: false, message: 'Login Google gagal');
+      }
+
+      final cachedJson = _storage.getUser();
+      UserModel user;
+      if (cachedJson != null && cachedJson['id'] == firebaseUser.uid) {
+        user = UserModel.fromJson(cachedJson);
+      } else {
+        final now = DateTime.now();
+        user = UserModel(
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName ?? 'User',
+          email: firebaseUser.email ?? '',
+          createdAt: now,
+          updatedAt: now,
+        );
+      }
+
+      await _storage.saveUser(user.toJson());
+      return AuthResult(success: true, user: user);
+    } catch (e) {
+      return AuthResult(success: false, message: 'Terjadi kesalahan: $e');
     }
   }
 
@@ -139,7 +179,7 @@ class AuthRepository {
   }
 
   // ================= IS LOGGED IN =================
-  bool get isLoggedIn => _storage.isLoggedIn;
+  bool get isLoggedIn => _firebaseAuth.currentUser != null;
 
   // ================= FIREBASE ERROR MAPPING =================
   String _mapFirebaseError(String code) {

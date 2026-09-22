@@ -1,4 +1,5 @@
 import 'package:danamoo/features/auth/view/widget/auth_header.dart';
+import 'package:danamoo/generated/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,14 @@ class _LoginViewState extends State<LoginView> {
     );
 
     if (!success && mounted) {
-      Utils.showErrorSnackbar(context, auth.errorMessage ?? 'Login gagal');
+      Utils.showAutoDismissDialog(
+        context,
+        title: "Login Gagal!",
+        content:
+            auth.errorMessage ??
+            "Login gagal, pastikan email dan password benar!",
+        imagePath: Assets.assetsIconsError,
+      );
     }
   }
 

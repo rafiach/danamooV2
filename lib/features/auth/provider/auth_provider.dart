@@ -31,8 +31,6 @@ class AuthProvider extends ChangeNotifier {
     _status = AuthStatus.loading;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 300));
-
     if (_authRepository.isLoggedIn) {
       _user = _authRepository.getCurrentUser();
       _status = AuthStatus.authenticated;
@@ -57,6 +55,27 @@ class AuthProvider extends ChangeNotifier {
       if (result.user != null) {
         await _syncRepository.restore(result.user!.id);
         // Ambil ulang user dari storage karena restore mungkin timpa data
+        _user = _authRepository.getCurrentUser() ?? result.user;
+      }
+      _status = AuthStatus.authenticated;
+      _errorMessage = null;
+    } else {
+      _status = AuthStatus.error;
+      _errorMessage = result.message;
+    }
+
+    notifyListeners();
+    return result.success;
+  }
+
+  Future<bool> loginWithGoogle() async {
+    _setLoading();
+
+    final result = await _authRepository.loginWithGoogle();
+
+    if (result.success) {
+      if (result.user != null) {
+        await _syncRepository.restore(result.user!.id);
         _user = _authRepository.getCurrentUser() ?? result.user;
       }
       _status = AuthStatus.authenticated;
