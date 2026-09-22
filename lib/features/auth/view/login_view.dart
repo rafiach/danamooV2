@@ -51,6 +51,20 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
+  Future<void> _onGoogleLogin() async {
+    final auth = context.read<AuthProvider>();
+    final success = await auth.loginWithGoogle();
+
+    if (!success && mounted) {
+      Utils.showAutoDismissDialog(
+        context,
+        title: 'Login Gagal',
+        content: auth.errorMessage ?? 'Login dengan Google gagal',
+        imagePath: Assets.assetsIconsError,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -151,6 +165,26 @@ class _LoginViewState extends State<LoginView> {
                       isLoading: auth.isLoading,
                       height: 56,
                       borderRadius: 16,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Divider(color: Constant.borderSubtle)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('atau', style: Constant.caption),
+                        ),
+                        Expanded(child: Divider(color: Constant.borderSubtle)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CustomButton.borderButton(
+                      label: 'Masuk dengan Google',
+                      onPressed: _onGoogleLogin,
+                      isLoading: auth.isLoading,
+                      height: 56,
+                      borderRadius: 16,
+                      icon: Icons
+                          .g_mobiledata, // ganti ke asset logo Google kalau ada
                     ),
                     const SizedBox(height: 16),
                     Row(

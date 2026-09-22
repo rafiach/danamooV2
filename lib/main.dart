@@ -68,7 +68,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthProvider()..initService(storage),
+          create: (_) =>
+              AuthProvider()..initService(storage, transactionRepository),
         ),
         ChangeNotifierProvider(
           create: (_) =>

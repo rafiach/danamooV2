@@ -97,4 +97,9 @@ class TransactionRepository {
         .where((t) => t.type == type)
         .fold(0, (sum, t) => sum + t.amount);
   }
+
+  // ================= DELETE ALL =================
+  Future<void> deleteAll(String userId) async {
+    return _local.deleteAll(userId);
+  }
 }

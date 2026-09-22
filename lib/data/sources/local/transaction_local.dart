@@ -130,4 +130,10 @@ class TransactionLocalSource {
       jsonEncode(transactions.map((e) => e.toJson()).toList()),
     );
   }
+
+  // ================= DELETE ALL (FOR ACCOUNT DELETION) =================
+  Future<void> deleteAll(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key(userId));
+  }
 }

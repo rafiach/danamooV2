@@ -51,4 +51,17 @@ class SyncRemoteSource {
       return (user: null, transactions: <TransactionModel>[]); // eksplisit
     }
   }
+
+  // ================= DELETE USER DATA =================
+  Future<void> deleteUserData(String userId) async {
+    final userRef = _firestore.collection('users').doc(userId);
+    final txSnapshot = await userRef.collection('transactions').get();
+
+    final batch = _firestore.batch();
+    for (var doc in txSnapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    batch.delete(userRef);
+    await batch.commit();
+  }
 }

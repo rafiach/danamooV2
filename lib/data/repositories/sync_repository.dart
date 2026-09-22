@@ -83,4 +83,14 @@ class SyncRepository {
     if (raw == null) return null;
     return DateTime.tryParse(raw);
   }
+
+  // ================= DELETE ACCOUNT DATA =================
+  Future<bool> deleteRemoteData(String userId) async {
+    try {
+      await _remote.deleteUserData(userId);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

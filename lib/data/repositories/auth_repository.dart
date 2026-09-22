@@ -206,4 +206,30 @@ class AuthRepository {
         return 'Terjadi kesalahan ($code)';
     }
   }
+
+  // ================= DELETE ACCOUNT =================
+  Future<AuthResult> deleteAccount() async {
+    try {
+      final firebaseUser = _firebaseAuth.currentUser;
+      if (firebaseUser == null) {
+        return AuthResult(success: false, message: 'User tidak ditemukan');
+      }
+
+      await firebaseUser.delete();
+      await _storage.clearAuth();
+
+      return AuthResult(success: true);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        return AuthResult(
+          success: false,
+          message:
+              'Sesi login sudah lama. Silakan logout, login ulang, lalu coba hapus akun lagi.',
+        );
+      }
+      return AuthResult(success: false, message: _mapFirebaseError(e.code));
+    } catch (e) {
+      return AuthResult(success: false, message: 'Terjadi kesalahan: $e');
+    }
+  }
 }

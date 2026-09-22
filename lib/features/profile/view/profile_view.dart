@@ -9,6 +9,7 @@ import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_card.dart';
 import '../../../core/widgets/custom_navigator.dart';
 import '../../../data/models/user_model.dart';
+import '../../../generated/assets.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../provider/profile_provider.dart';
 import '../../home/provider/home_provider.dart';
@@ -40,6 +41,41 @@ class _ProfileViewState extends State<ProfileView> {
         // atau kalau nggak mau nampilin build number:
         // _appVersion = 'Versi ${info.version}';
       });
+    }
+  }
+
+  Future<void> _confirmDeleteAccount(
+    BuildContext context,
+    AuthProvider authProvider,
+  ) async {
+    final confirm = await Utils.showConfirmDialog(
+      context,
+      title: 'Hapus Akun',
+      content:
+          'Semua data transaksi dan akun kamu akan dihapus permanen. Tindakan ini tidak bisa dibatalkan. Lanjutkan?',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      isDanger: true,
+    );
+
+    if (confirm != true || !context.mounted) return;
+
+    Utils.showLoadingDialog(context, message: 'Menghapus akun...');
+
+    final success = await authProvider.deleteAccount();
+
+    if (!context.mounted) return;
+    Utils.hideLoadingDialog(context);
+
+    if (success) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+    } else {
+      Utils.showAutoDismissDialog(
+        context,
+        title: 'Gagal Menghapus Akun',
+        content: authProvider.errorMessage ?? 'Terjadi kesalahan',
+        imagePath: Assets.assetsIconsError,
+      );
     }
   }
 
@@ -169,9 +205,8 @@ class _ProfileViewState extends State<ProfileView> {
 
                           Center(
                             child: TextButton(
-                              onPressed: () {
-                                // TODO: konfirmasi & hapus akun
-                              },
+                              onPressed: () =>
+                                  _confirmDeleteAccount(context, authProvider),
                               child: Text(
                                 'Hapus Akun',
                                 style: Constant.textMedium.copyWith(

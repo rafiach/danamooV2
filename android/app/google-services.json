@@ -12,7 +12,20 @@
           "package_name": "com.example.danamoo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "577791769210-s7889bqfkbttp1vtvthq6msre95pbjen.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.danamoo",
+            "certificate_hash": "9ea56097194528f5b76755ac7b263cd61da094aa"
+          }
+        },
+        {
+          "client_id": "577791769210-log9oupj4r708r7b76c8ptd376c2pok9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAtBWBdhZjUzpIQH8MLUtEP2FdSPmdnaDc"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577791769210-log9oupj4r708r7b76c8ptd376c2pok9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "577791769210-o40g2ntgoa1bedon313bvsmubpllq9tk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.templateProjek"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,12 @@
           "package_name": "com.example.template_projek"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "577791769210-log9oupj4r708r7b76c8ptd376c2pok9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAtBWBdhZjUzpIQH8MLUtEP2FdSPmdnaDc"
@@ -39,7 +69,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577791769210-log9oupj4r708r7b76c8ptd376c2pok9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "577791769210-o40g2ntgoa1bedon313bvsmubpllq9tk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.templateProjek"
+              }
+            }
+          ]
         }
       }
     }
