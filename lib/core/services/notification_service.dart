@@ -12,7 +12,7 @@ class NotificationService {
 
   static Future<void> initialize() async {
     const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('logo_brand');
 
     const InitializationSettings settings = InitializationSettings(
       android: androidSettings,
@@ -48,7 +48,7 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       icon:
-          '@mipmap/ic_launcher', // ganti '@drawable/ic_notification' kalau sudah ada asset khusus
+          'logo_brand', // ganti '@drawable/ic_notification' kalau sudah ada asset khusus
       largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
       color: accentColor,
       colorized: true,

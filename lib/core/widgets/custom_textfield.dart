@@ -37,7 +37,7 @@ class CustomTextField {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: labelColor ?? Constant.white,
+              color: labelColor ?? Constant.textPrimary,
             ),
           ),
           const SizedBox(height: 8),

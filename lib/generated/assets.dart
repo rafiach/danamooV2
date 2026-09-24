@@ -1,14 +1,17 @@
 // ignore_for_file: prefer_single_quotes
 class Assets {
   Assets._();
-  
+
   static const String assetsFontsRobotoBold = "assets/fonts/Roboto-Bold.ttf";
 
-  static const String assetsFontsRobotoBoldItalic = "assets/fonts/Roboto-BoldItalic.ttf";
+  static const String assetsFontsRobotoBoldItalic =
+      "assets/fonts/Roboto-BoldItalic.ttf";
 
-  static const String assetsFontsRobotoItalic = "assets/fonts/Roboto-Italic.ttf";
+  static const String assetsFontsRobotoItalic =
+      "assets/fonts/Roboto-Italic.ttf";
 
-  static const String assetsFontsRobotoRegular = "assets/fonts/Roboto-Regular.ttf";
+  static const String assetsFontsRobotoRegular =
+      "assets/fonts/Roboto-Regular.ttf";
 
   static const String assetsIconsBarChart = "assets/icons/bar_chart.png";
 
@@ -24,9 +27,11 @@ class Assets {
 
   static const String assetsIconsCowMascot = "assets/icons/cow_mascot.png";
 
-  static const String assetsIconsCowMascotEmpty = "assets/icons/cow_mascot_empty.png";
+  static const String assetsIconsCowMascotEmpty =
+      "assets/icons/cow_mascot_empty.png";
 
-  static const String assetsIconsCowMascotPeeking = "assets/icons/cow_mascot_peeking.png";
+  static const String assetsIconsCowMascotPeeking =
+      "assets/icons/cow_mascot_peeking.png";
 
   static const String assetsIconsCreditCard = "assets/icons/credit_card.png";
 
@@ -50,11 +55,17 @@ class Assets {
 
   static const String assetsIconsListPaper = "assets/icons/list_paper.png";
 
+  static const String assetsIconsLogoBrand = "assets/icons/logo-brand.png";
+
+  static const String assetsIconsLogoBrandFilled =
+      "assets/icons/logo-brand-filled.png";
+
   static const String assetsIconsSetting = "assets/icons/setting.png";
 
   static const String assetsIconsShoppingBag = "assets/icons/shopping_bag.png";
 
-  static const String assetsIconsShoppingCart = "assets/icons/shopping-cart.png";
+  static const String assetsIconsShoppingCart =
+      "assets/icons/shopping-cart.png";
 
   static const String assetsIconsSuccess = "assets/icons/success.png";
 
@@ -65,5 +76,7 @@ class Assets {
   static const String assetsImagesBubble = "assets/images/bubble.png";
 
   static const String assetsImagesBubble2 = "assets/images/bubble2.png";
-}
 
+  static const String assetsImagesLogoHorizontalWhite =
+      "assets/images/logo-horizontal-white.png";
+}

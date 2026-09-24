@@ -70,10 +70,15 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      final credential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final credential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .timeout(
+            const Duration(seconds: 15),
+            onTimeout: () => throw FirebaseAuthException(
+              code: 'timeout',
+              message: 'Waktu login habis, periksa koneksi internet kamu.',
+            ),
+          );
 
       final firebaseUser = credential.user;
       if (firebaseUser == null) {
@@ -202,6 +207,8 @@ class AuthRepository {
         return 'Terlalu banyak percobaan, coba lagi nanti';
       case 'network-request-failed':
         return 'Periksa koneksi internet kamu';
+      case 'timeout':
+        return 'Waktu login habis, periksa koneksi internet kamu';
       default:
         return 'Terjadi kesalahan ($code)';
     }

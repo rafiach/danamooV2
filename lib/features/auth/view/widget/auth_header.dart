@@ -1,3 +1,4 @@
+import 'package:danamoo/generated/assets.dart';
 import 'package:flutter/material.dart';
 
 class AuthHeader extends StatelessWidget {
@@ -23,32 +24,12 @@ class AuthHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC6FF00), // lime terang logo
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Text(
-                  'D',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'DANAMOO',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
+          Image.asset(
+            Assets.assetsImagesLogoHorizontalWhite,
+            height: 38,
+            fit: BoxFit.cover,
           ),
+          const SizedBox(height: 12),
           if (title != null) ...[
             const SizedBox(height: 28),
             Text(

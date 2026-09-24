@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/constants/constant.dart';
+import '../../../../core/utils/currency_input_formatter.dart';
 import '../../../../core/utils/utils.dart';
 import '../../../../core/widgets/custom_textfield.dart';
 import '../../../../core/widgets/date_picker_sheet.dart';
@@ -69,7 +70,7 @@ class HistoryEditForm extends StatelessWidget {
           hint: '0',
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            _CurrencyInputFormatter(),
+            CurrencyInputFormatter(),
           ],
         ),
         const SizedBox(height: 24),

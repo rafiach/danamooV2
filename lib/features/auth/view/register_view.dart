@@ -80,6 +80,7 @@ class _RegisterViewState extends State<RegisterView> {
                       title: 'Yuk, Mulai!',
                       subtitle: 'Daftar sebentar, atur keuanganmu seterusnya',
                     ),
+                    const SizedBox(height: 18),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                       child: Column(
@@ -175,6 +176,7 @@ class _RegisterViewState extends State<RegisterView> {
                   children: [
                     CustomButton.mainButton(
                       label: 'Daftar',
+                      textColor: Constant.textPrimary,
                       onPressed: _onRegister,
                       isLoading: auth.isLoading,
                       height: 56,
@@ -195,7 +197,8 @@ class _RegisterViewState extends State<RegisterView> {
                           child: Text(
                             'Masuk',
                             style: Constant.textSemiBold.copyWith(
-                              color: Constant.limeAccent,
+                              color: Constant.expenseRed,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

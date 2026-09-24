@@ -50,6 +50,7 @@ class CustomButton {
     bool isLoading = false,
     bool enabled = true,
     Color? color,
+    Color textColor = Constant.textPrimary,
     IconData? icon,
     double height = 48,
     double borderRadius = 12,
@@ -82,9 +83,7 @@ class CustomButton {
         child: _mainContent(
           label: label,
           isLoading: isLoading,
-          textColor: isDisabled
-              ? activeColor.withValues(alpha: 0.4)
-              : activeColor,
+          textColor: isDisabled ? textColor.withValues(alpha: 0.4) : textColor,
           icon: icon,
           fontSize: fontSize,
         ),
