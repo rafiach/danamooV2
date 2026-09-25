@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:danamoo/core/services/storage_service.dart';
 import 'package:danamoo/data/models/user_model.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 /// Hasil dari setiap operasi auth
@@ -177,9 +180,14 @@ class AuthRepository {
     await _storage.saveUser(user.toJson());
 
     // Sync display name ke Firebase kalau berubah
+    // Tidak di-await supaya tidak blocking flow backup/update profil
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser != null && firebaseUser.displayName != user.name) {
-      await firebaseUser.updateDisplayName(user.name);
+      unawaited(
+        firebaseUser.updateDisplayName(user.name).catchError((e) {
+          debugPrint('Gagal update display name: $e');
+        }),
+      );
     }
   }
 

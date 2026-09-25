@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/constants/constant.dart';
 import '../../../../core/utils/currency_input_formatter.dart';
 import '../../../../core/utils/utils.dart';
+import '../../../../core/widgets/category_chip.dart';
 import '../../../../core/widgets/custom_textfield.dart';
 import '../../../../core/widgets/date_picker_sheet.dart';
 import '../../../../core/widgets/segmented_control.dart';
@@ -88,7 +89,7 @@ class HistoryEditForm extends StatelessWidget {
             crossAxisSpacing: 10,
             children: expenseCategories.map((cat) {
               final isSelected = selectedCategory?.id == cat.id;
-              return _CategoryChip(
+              return CategoryChip(
                 category: cat,
                 isSelected: isSelected,
                 onTap: () => onCategoryChanged(cat),
@@ -131,63 +132,6 @@ class _SectionLabel extends StatelessWidget {
       style: Constant.textSemiBold.copyWith(
         color: Constant.textPrimary,
         fontSize: 14,
-      ),
-    );
-  }
-}
-
-class _CategoryChip extends StatelessWidget {
-  final CategoryModel category;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _CategoryChip({
-    required this.category,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: Constant.durationShort,
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Constant.limeAccentDark.withValues(alpha: 0.15)
-              : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? Constant.limeAccentDark : Constant.borderSubtle,
-            width: isSelected ? 2 : 1.5,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            category.icon,
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                category.name,
-                style: TextStyle(
-                  color: isSelected
-                      ? Constant.textPrimary
-                      : Constant.textSecondary,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  fontSize: 13,
-                ),
-                textAlign: TextAlign.start,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -238,31 +182,6 @@ class _DateField extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-// ===== FORMATTER RUPIAH =====
-class _CurrencyInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-    final numericString = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (numericString.isEmpty) return const TextEditingValue(text: '');
-
-    final intValue = int.parse(numericString);
-    final formatted = intValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }
