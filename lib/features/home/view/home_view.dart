@@ -80,21 +80,18 @@ class _HomeViewState extends State<HomeView> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "DANAMOO",
-                                  style: Constant.h4.copyWith(
-                                    fontSize: 24,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Image.asset(
+                                  Assets.assetsImagesLogoHorizontalWhite,
+                                  height: 32,
+                                  fit: BoxFit.contain,
                                 ),
-                                Text(
-                                  "Intip keuanganmu hari ini !",
-                                  style: Constant.bodyMedium.copyWith(
-                                    color: Colors.white70,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                // Text(
+                                //   "Intip keuanganmu hari ini !",
+                                //   style: Constant.bodyMedium.copyWith(
+                                //     color: Colors.white70,
+                                //     fontWeight: FontWeight.w500,
+                                //   ),
+                                // ),
                               ],
                             ),
                           ],
@@ -106,8 +103,6 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                   ),
-
-                  // Konten sisanya (transaksi)
                   Expanded(
                     child: SafeArea(
                       top: false,
@@ -142,7 +137,7 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            // const SizedBox(height: 4),
                             Expanded(
                               child: homeData?.todayTransactions.isEmpty ?? true
                                   ? _buildEmptyTransactions()
@@ -170,7 +165,7 @@ class _HomeViewState extends State<HomeView> {
                                             transaction.date,
                                           ),
                                           icon: transaction.icon,
-                                          bgColor: transaction.color,
+                                          bgIconColor: transaction.color,
                                           isIncome: isIncome,
                                         );
                                       },

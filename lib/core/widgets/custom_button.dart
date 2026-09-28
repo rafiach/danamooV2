@@ -14,6 +14,7 @@ class CustomButton {
     double height = 48,
     double borderRadius = 12,
     double fontSize = 14,
+    FontWeight? fontWeight,
     double? width,
   }) {
     final isDisabled = !enabled || isLoading || onPressed == null;
@@ -38,6 +39,7 @@ class CustomButton {
           textColor: textColor ?? Colors.white,
           icon: icon,
           fontSize: fontSize,
+          fontWeight: fontWeight,
         ),
       ),
     );
@@ -217,6 +219,7 @@ class CustomButton {
     required Color textColor,
     IconData? icon,
     double fontSize = 14,
+    FontWeight? fontWeight,
     TextDecoration? decoration,
   }) {
     if (isLoading) {
@@ -239,7 +242,7 @@ class CustomButton {
             label,
             style: TextStyle(
               fontSize: fontSize,
-              fontWeight: FontWeight.w600,
+              fontWeight: fontWeight ?? FontWeight.w600,
               color: textColor,
               decoration: decoration,
             ),
@@ -252,7 +255,7 @@ class CustomButton {
       label,
       style: TextStyle(
         fontSize: fontSize,
-        fontWeight: FontWeight.w600,
+        fontWeight: fontWeight ?? FontWeight.w600,
         color: textColor,
         decoration: decoration,
       ),

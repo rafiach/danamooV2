@@ -9,6 +9,7 @@ import '../../../../core/widgets/category_chip.dart';
 import '../../../../core/widgets/custom_textfield.dart';
 import '../../../../core/widgets/date_picker_sheet.dart';
 import '../../../../core/widgets/segmented_control.dart';
+import '../../../../core/widgets/time_picker_sheet.dart';
 import '../../../../data/models/transaction_model.dart';
 
 class HistoryEditForm extends StatelessWidget {
@@ -21,6 +22,7 @@ class HistoryEditForm extends StatelessWidget {
   final String currency;
 
   final ValueChanged<DateTime> onDateChanged;
+  final ValueChanged<DateTime> onTimeChanged;
   final ValueChanged<TransactionType> onTypeChanged;
   final ValueChanged<CategoryModel?> onCategoryChanged;
 
@@ -34,6 +36,7 @@ class HistoryEditForm extends StatelessWidget {
     required this.categories,
     required this.currency,
     required this.onDateChanged,
+    required this.onTimeChanged,
     required this.onTypeChanged,
     required this.onCategoryChanged,
   });
@@ -45,6 +48,8 @@ class HistoryEditForm extends StatelessWidget {
     final expenseCategories = categories
         .where((cat) => cat.type == TransactionType.expense)
         .toList();
+
+    DateTime _selectedDateTime = selectedDate;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,9 +115,25 @@ class HistoryEditForm extends StatelessWidget {
         const SizedBox(height: 24),
 
         // Date Field
-        _SectionLabel('TANGGAL'),
+        _SectionLabel('TANGGAL & WAKTU'),
         const SizedBox(height: 8),
-        _DateField(selectedDate: selectedDate, onDateChanged: onDateChanged),
+        Row(
+          children: [
+            Expanded(
+              child: _DateField(
+                selectedDate: selectedDate,
+                onDateChanged: onDateChanged,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _TimeField(
+                selectedDate: selectedDate,
+                onTimeChanged: onTimeChanged,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -152,7 +173,15 @@ class _DateField extends StatelessWidget {
           initialDate: selectedDate,
           title: 'Pilih Tanggal',
         );
-        if (picked != null) onDateChanged(picked);
+        final newDateTime = DateTime(
+          picked!.year,
+          picked.month,
+          picked.day,
+          selectedDate.hour,
+          selectedDate.minute,
+        );
+
+        onDateChanged(newDateTime);
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -172,7 +201,66 @@ class _DateField extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                Utils.formatDate(selectedDate),
+                Utils.formatDateShort(selectedDate),
+                style: Constant.bodyMedium.copyWith(
+                  color: Constant.textPrimary,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimeField extends StatelessWidget {
+  final DateTime selectedDate;
+  final ValueChanged<DateTime> onTimeChanged;
+
+  const _TimeField({required this.selectedDate, required this.onTimeChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () async {
+        print('selectedDate: $selectedDate');
+        print('hour: ${selectedDate.hour}');
+        print('minute: ${selectedDate.minute}');
+        final picked = await TimePickerSheet.show(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(selectedDate),
+        );
+
+        if (picked != null) {
+          final newDateTime = DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            picked.hour,
+            picked.minute,
+          );
+
+          onTimeChanged(newDateTime);
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: Constant.surfaceCard,
+          border: Border.all(color: Constant.borderSubtle, width: 1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.access_time, size: 20, color: Constant.limeAccent),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '${selectedDate.hour.toString().padLeft(2, '0')}:'
+                '${selectedDate.minute.toString().padLeft(2, '0')}',
                 style: Constant.bodyMedium.copyWith(
                   color: Constant.textPrimary,
                   fontSize: 16,

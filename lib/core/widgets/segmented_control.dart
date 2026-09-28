@@ -27,9 +27,9 @@ class SegmentedControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final activeBg = activeColor ?? Constant.limeAccent;
     final inactiveBg = inactiveColor ?? Colors.transparent;
-    final activeText = Constant.textPrimary;
-    final inactiveText = Constant.textSecondary;
-    final bg = backgroundColor ?? Constant.surfaceCard;
+    final activeText = Constant.surfaceDark;
+    final inactiveText = Constant.textWhite;
+    final bg = backgroundColor ?? Constant.surfaceDark;
     final border = Constant.borderSubtle;
 
     return Container(
@@ -58,7 +58,7 @@ class SegmentedControl extends StatelessWidget {
                   labels[index],
                   style: TextStyle(
                     color: isSelected ? activeText : inactiveText,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
                     fontSize: 14,
                   ),
                 ),

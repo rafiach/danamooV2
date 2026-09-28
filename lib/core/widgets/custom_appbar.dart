@@ -23,8 +23,8 @@ class CustomAppBar {
         ),
       ),
       centerTitle: centerTitle,
-      backgroundColor: backgroundColor ?? Colors.white,
-      foregroundColor: foregroundColor ?? const Color(0xFF212121),
+      backgroundColor: backgroundColor ?? Constant.bgNeutral,
+      foregroundColor: foregroundColor ?? Constant.surfaceDark,
       elevation: elevation,
       leadingWidth: 56,
       leading: leading == null
@@ -34,7 +34,7 @@ class CustomAppBar {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: Constant.greyDark.withValues(alpha: 0.3),
+                  color: Constant.surfaceDark,
                   borderRadius: const BorderRadius.all(Radius.circular(16)),
                 ),
                 child: IconButtonTheme(
@@ -42,6 +42,7 @@ class CustomAppBar {
                     style: IconButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(40, 40),
+                      foregroundColor: Constant.bgNeutral,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),

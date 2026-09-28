@@ -42,7 +42,7 @@ class CustomCard {
     VoidCallback? onTap,
     EdgeInsetsGeometry? padding,
     EdgeInsetsGeometry? margin,
-    Color? color = Constant.greyLight,
+    Color? color,
     Color? borderColor,
     double borderRadius = 16,
   }) {

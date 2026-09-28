@@ -23,7 +23,7 @@ class HistoryProvider extends ChangeNotifier {
 
   // Filter state
   String _searchQuery = '';
-  String _selectedType = 'All'; // 'All' | 'Income' | 'Expense'
+  String _selectedType = 'Semua'; // 'Semua' | 'Pemasukan' | 'Pengeluaran'
   String? _selectedCategory; // nama kategori expense, nullable
   DateTime? _selectedDate;
 
@@ -40,15 +40,15 @@ class HistoryProvider extends ChangeNotifier {
   List<HistoryListItem> get filteredTransactions {
     List<TransactionModel> filtered = _allTransactions.where((t) {
       // Filter by type
-      if (_selectedType == 'Income' && t.type != TransactionType.income) {
+      if (_selectedType == 'Pemasukan' && t.type != TransactionType.income) {
         return false;
       }
-      if (_selectedType == 'Expense' && t.type != TransactionType.expense) {
+      if (_selectedType == 'Pengeluaran' && t.type != TransactionType.expense) {
         return false;
       }
 
       // Filter by category (hanya aktif saat Expense dipilih)
-      if (_selectedType == 'Expense' && _selectedCategory != null) {
+      if (_selectedType == 'Pengeluaran' && _selectedCategory != null) {
         final cat = _categoryMap[t.categoryId];
         if (cat?.name != _selectedCategory) return false;
       }
@@ -130,7 +130,7 @@ class HistoryProvider extends ChangeNotifier {
   }
 
   void resetFilters() {
-    _selectedType = 'All';
+    _selectedType = 'Semua';
     _selectedCategory = null;
     _selectedDate = null;
     _searchQuery = '';

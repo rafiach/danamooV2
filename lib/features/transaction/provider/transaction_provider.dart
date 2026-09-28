@@ -185,4 +185,27 @@ class TransactionProvider extends ChangeNotifier {
         : TransactionStatus.initial;
     notifyListeners();
   }
+
+  // ================= DELETE =================
+  Future<bool> delete({
+    required String userId,
+    required String transactionId,
+  }) async {
+    _status = TransactionStatus.saving;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final result = await _transactionRepository.delete(userId, transactionId);
+
+      _status = TransactionStatus.success;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan sistem';
+      _status = TransactionStatus.error;
+      notifyListeners();
+      return false;
+    }
+  }
 }

@@ -152,16 +152,21 @@ class CustomTextField {
     String? hint,
     ValueChanged<String>? onChanged,
     VoidCallback? onClear,
+    Color? borderColor,
+    Color? borderFocusColor,
   }) {
+    final effectiveBorderColor = borderColor ?? Constant.borderSubtle;
     return TextFormField(
       controller: controller,
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hint ?? 'Cari...',
-        prefixIcon: const Icon(LucideIcons.search, size: 20),
+        hoverColor: Constant.surfaceDark,
+        focusColor: Constant.surfaceDark,
+        prefixIcon: const Icon(LucideIcons.search400, size: 20),
         suffixIcon: controller?.text.isNotEmpty ?? false
             ? IconButton(
-                icon: const Icon(Icons.clear, size: 20),
+                icon: const Icon(LucideIcons.x400, size: 20),
                 onPressed: () {
                   controller?.clear();
                   onClear?.call();
@@ -169,10 +174,21 @@ class CustomTextField {
               )
             : null,
         filled: true,
-        fillColor: const Color(0xFFF5F5F5),
+        fillColor: Constant.surfaceCard,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: effectiveBorderColor, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: effectiveBorderColor, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: borderFocusColor ?? Constant.limeAccent,
+            width: 2,
+          ),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,

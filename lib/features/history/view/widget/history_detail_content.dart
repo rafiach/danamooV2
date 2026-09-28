@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/constants/constant.dart';
 import '../../../../core/utils/utils.dart';
@@ -24,140 +25,170 @@ class HistoryDetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Hero Card
-        CustomCard.surface(
-          borderRadius: 20,
-          color: Constant.greyLight,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _headerInfo(),
+            const SizedBox(height: 32),
+            if (!_isIncome && category != null) ...[
+              CustomCard.surface(
+                borderRadius: 20,
+                color: Constant.surfaceCard,
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Constant.limeAccent.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: category!.icon,
                     ),
-                    decoration: BoxDecoration(
-                      color: _isIncome
-                          ? Constant.limeAccent.withValues(alpha: 0.15)
-                          : Constant.expenseRed.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _isIncome ? 'Pemasukan' : 'Pengeluaran',
-                      style: Constant.captionBold.copyWith(
-                        color: _isIncome
-                            ? Constant.limeAccent
-                            : Constant.expenseRed,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Kategori',
+                            style: Constant.caption.copyWith(
+                              color: Constant.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            category!.name,
+                            style: Constant.textSemiBold.copyWith(
+                              color: Constant.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    Utils.formatDateTimeComplete(transaction.date),
-                    style: Constant.caption.copyWith(
-                      color: Constant.textSecondary,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${_isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
-                      style: Constant.h2.copyWith(
-                        fontSize: 28,
-                        color: _isIncome
-                            ? Constant.incomeGreenAccentDark
-                            : Constant.expenseRed,
-                        fontWeight: FontWeight.bold,
+            ],
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: CustomCard.surface(
+                borderRadius: 20,
+                color: Constant.surfaceCard,
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tanggal & Waktu',
+                      style: Constant.textSemiBold.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Constant.textPrimary,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      Utils.formatDateWithDay(transaction.date),
+                      style: Constant.textBold.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Constant.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      Utils.formatDateTimeToTime(transaction.date),
+                      style: Constant.textBold.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Constant.textPrimary,
+                      ),
+                    ),
+                    Divider(
+                      thickness: 1,
+                      color: Constant.surfaceDark.withValues(alpha: 0.4),
+                    ),
+                    Text(
+                      'Deskripsi',
+                      style: Constant.textBold.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Constant.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      transaction.note?.isNotEmpty == true
+                          ? transaction.note!
+                          : 'Tidak ada catatan',
+                      style: Constant.bodyMedium.copyWith(
+                        color: transaction.note?.isNotEmpty == true
+                            ? Constant.textPrimary
+                            : Constant.textSecondary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _headerInfo() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Constant.surfaceDark,
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _isIncome
+                    ? LucideIcons.moveDownLeft400
+                    : LucideIcons.moveUpRight400,
+                color: Constant.limeAccent,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _isIncome ? 'Pemasukan' : 'Pengeluaran',
+                style: Constant.captionBold.copyWith(
+                  color: Constant.limeAccent,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        if (!_isIncome && category != null) ...[
-          CustomCard.surface(
-            borderRadius: 20,
-            color: Constant.greyLight,
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Constant.limeAccent.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: category!.icon,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Kategori',
-                        style: Constant.caption.copyWith(
-                          color: Constant.textSecondary,
-                        ),
-                      ),
-                      Text(
-                        category!.name,
-                        style: Constant.textSemiBold.copyWith(
-                          color: Constant.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        Text(
+          '${_isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
+          textAlign: TextAlign.center,
+          style: Constant.h2.copyWith(
+            fontSize: 44,
+            color: Constant.surfaceDark,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1,
           ),
-        ],
-        const SizedBox(height: 16),
+        ),
 
-        // Description Card
-        SizedBox(
-          width: double.infinity,
-          child: CustomCard.surface(
-            borderRadius: 20,
-            color: Constant.greyLight,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Deskripsi',
-                  style: Constant.textSemiBold.copyWith(
-                    color: Constant.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  transaction.note?.isNotEmpty == true
-                      ? transaction.note!
-                      : 'Tidak ada catatan',
-                  style: Constant.bodyMedium.copyWith(
-                    color: transaction.note?.isNotEmpty == true
-                        ? Constant.textPrimary
-                        : Constant.textSecondary,
-                  ),
-                ),
-              ],
-            ),
+        const SizedBox(height: 10),
+        Container(
+          width: 56,
+          height: 8,
+          decoration: BoxDecoration(
+            color: Constant.limeAccent,
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
       ],

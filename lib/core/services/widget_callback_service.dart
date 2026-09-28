@@ -4,8 +4,8 @@ import 'package:danamoo/core/services/storage_service.dart';
 import 'package:danamoo/core/utils/utils.dart';
 import 'package:danamoo/data/models/transaction_model.dart';
 import 'package:danamoo/data/repositories/transaction_repository.dart';
-import 'package:home_widget/home_widget.dart';
 import 'package:flutter/widgets.dart';
+import 'package:home_widget/home_widget.dart';
 
 const String _androidWidgetName = 'DanamooWidgetProvider';
 
@@ -20,12 +20,18 @@ FutureOr<void> widgetBackgroundCallback(Uri? uri) async {
       final current = await _getPendingAmount();
       await _setPendingAmount(current + value);
       break;
-    case 'reset_amount':
-      await _setPendingAmount(0);
+    case 'select_category':
+      final categoryId = uri.queryParameters['id'];
+      if (categoryId != null) {
+        await HomeWidget.saveWidgetData('selected_category', categoryId);
+        await HomeWidget.updateWidget(androidName: _androidWidgetName);
+      }
       break;
-    case 'save_expense':
-      final categoryId = uri.queryParameters['category'];
-      if (categoryId != null) await _saveExpense(categoryId);
+    case 'reset_all':
+      await _resetAll();
+      break;
+    case 'send':
+      await _send();
       break;
   }
 }
@@ -47,9 +53,20 @@ Future<void> _setPendingAmount(int amount) async {
   await HomeWidget.updateWidget(androidName: _androidWidgetName);
 }
 
-Future<void> _saveExpense(String categoryId) async {
+Future<void> _resetAll() async {
+  await HomeWidget.saveWidgetData('pending_amount', '0');
+  await HomeWidget.saveWidgetData('pending_amount_label', 'Rp 0');
+  await HomeWidget.saveWidgetData('selected_category', '');
+  await HomeWidget.updateWidget(androidName: _androidWidgetName);
+}
+
+Future<void> _send() async {
   final amount = await _getPendingAmount();
-  if (amount <= 0) return;
+  final categoryId = await HomeWidget.getWidgetData<String>(
+    'selected_category',
+    defaultValue: '',
+  );
+  if (amount <= 0 || categoryId == null || categoryId.isEmpty) return;
 
   final storage = await StorageService.getInstance();
   final user = storage.getUser();
@@ -63,5 +80,5 @@ Future<void> _saveExpense(String categoryId) async {
     amount: amount.toDouble(),
   );
 
-  await _setPendingAmount(0);
+  await _resetAll();
 }

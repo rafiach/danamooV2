@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -14,7 +15,6 @@ import '../../../core/widgets/custom_textfield.dart';
 import '../../../core/widgets/date_picker_sheet.dart';
 import '../../../core/widgets/segmented_control.dart';
 import '../../../core/widgets/time_picker_sheet.dart';
-import '../../../data/models/category_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../home/provider/home_provider.dart';
@@ -91,10 +91,11 @@ class _TransactionViewState extends State<TransactionView> {
     final raw = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
     final amount = double.tryParse(raw) ?? 0;
     if (amount <= 0) {
-      Utils.showWarningDialog(
+      Utils.showErrorDialog(
         context,
         title: 'Nominal tidak valid',
         content: 'Masukkan nominal transaksi yang benar',
+        mode: StatusDialogMode.autoDismiss,
       );
       return;
     }
@@ -152,7 +153,7 @@ class _TransactionViewState extends State<TransactionView> {
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => CustomNavigator.pop(context),
         ),
-        backgroundColor: Constant.surfaceCard,
+        backgroundColor: Constant.bgNeutral,
         foregroundColor: Constant.textPrimary,
       ),
       body: GestureDetector(
@@ -182,7 +183,6 @@ class _TransactionViewState extends State<TransactionView> {
                             ),
                             borderRadius: 24,
                             height: 50,
-                            backgroundColor: Constant.greyLight,
                           ),
                           const SizedBox(height: 24),
 
@@ -232,7 +232,7 @@ class _TransactionViewState extends State<TransactionView> {
                                   value: Utils.formatDateShort(
                                     _selectedDateTime,
                                   ),
-                                  icon: Icons.calendar_today_outlined,
+                                  icon: LucideIcons.calendarSearch400,
                                   onTap: _pickDate,
                                 ),
                               ),
@@ -242,7 +242,7 @@ class _TransactionViewState extends State<TransactionView> {
                                   label: 'WAKTU',
                                   value:
                                       '${_selectedDateTime.hour.toString().padLeft(2, '0')}:${_selectedDateTime.minute.toString().padLeft(2, '0')}',
-                                  icon: Icons.access_time_outlined,
+                                  icon: LucideIcons.clock8400,
                                   onTap: _pickTime,
                                 ),
                               ),
@@ -264,8 +264,10 @@ class _TransactionViewState extends State<TransactionView> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: CustomButton.mainButton(
                   label: 'Simpan',
-                  textColor: Constant.textPrimary,
+                  color: Constant.surfaceDark,
+                  textColor: Constant.limeAccent,
                   fontSize: 16,
+                  fontWeight: FontWeight.w800,
                   onPressed: _onSubmit,
                   isLoading: provider.isSaving,
                   height: 56,

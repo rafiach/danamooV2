@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -96,7 +98,9 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
 
   Future<void> _saveChanges() async {
     final userId = context.read<AuthProvider>().user?.id ?? '';
+
     final rawAmount = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
+
     final amount = double.tryParse(rawAmount) ?? 0;
 
     if (amount <= 0) {
@@ -109,6 +113,7 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     }
 
     final provider = context.read<TransactionProvider>();
+
     final success = await provider.update(
       userId: userId,
       transactionId: widget.data.transaction.id,
@@ -124,28 +129,77 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
 
     if (success) {
       final user = context.read<AuthProvider>().user;
+
       if (user != null) {
         context.read<HomeProvider>().fetchData(user);
       }
 
-      Utils.showAutoDismissDialog(
+      await Utils.showSuccessDialog(
         context,
-        title: 'Perubahan Disimpan',
+        title: 'Transaksi Diperbarui',
         content: 'Transaksi berhasil diperbarui',
-        imagePath: Assets.assetsIconsSuccess,
-        onDismissed: () {
-          if (mounted) CustomNavigator.pop(context, true);
-        },
+        mode: StatusDialogMode.autoDismiss,
       );
+
+      if (mounted) {
+        CustomNavigator.pop(context, true);
+      }
     } else {
-      Utils.showAutoDismissDialog(
+      await Utils.showErrorDialog(
         context,
-        title: 'Perubahan Gagal Disimpan',
-        content: 'Transaksi gagal diperbarui',
-        imagePath: Assets.assetsIconsError,
-        onDismissed: () {
-          if (mounted) CustomNavigator.pop(context, true);
-        },
+        title: 'Gagal diperbarui',
+        content: 'Transaksi gagal diperbarui, mohon coba lagi',
+        mode: StatusDialogMode.autoDismiss,
+      );
+    }
+  }
+
+  void _showDeleteDialog() {
+    Utils.showWarningDialog(
+      context,
+      title: 'Hapus Transaksi',
+      content: 'Apakah yakin ingin menghapus transaksi ini?',
+      confirmText: 'Ya',
+      cancelText: 'Tidak',
+      onConfirm: _deleteTransaction,
+    );
+  }
+
+  Future<void> _deleteTransaction() async {
+    final userId = context.read<AuthProvider>().user?.id ?? '';
+
+    final provider = context.read<TransactionProvider>();
+
+    final success = await provider.delete(
+      userId: userId,
+      transactionId: widget.data.transaction.id,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      final user = context.read<AuthProvider>().user;
+
+      if (user != null) {
+        context.read<HomeProvider>().fetchData(user);
+      }
+
+      await Utils.showSuccessDialog(
+        context,
+        title: 'Transaksi Dihapus',
+        content: 'Transaksi berhasil dihapus',
+        mode: StatusDialogMode.autoDismiss,
+      );
+
+      if (mounted) {
+        CustomNavigator.pop(context, true);
+      }
+    } else {
+      await Utils.showErrorDialog(
+        context,
+        title: 'Gagal Menghapus',
+        content: 'Transaksi gagal dihapus, mohon coba lagi',
+        mode: StatusDialogMode.autoDismiss,
       );
     }
   }
@@ -162,26 +216,13 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     return Scaffold(
       backgroundColor: Constant.bgNeutral,
       appBar: CustomAppBar.standard(
-        title: 'Detail Transaksi',
+        title: _isEditing ? 'Edit Transaksi' : 'Detail Transaksi',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => CustomNavigator.pop(context),
         ),
-        backgroundColor: Constant.surfaceCard,
+        backgroundColor: Constant.bgNeutral,
         foregroundColor: Constant.textPrimary,
-        actions: [
-          if (_isEditing) ...[
-            IconButton(
-              icon: const Icon(LucideIcons.x500),
-              onPressed: _cancelEdit,
-            ),
-          ] else ...[
-            IconButton(
-              icon: const Icon(LucideIcons.pencilLine500),
-              onPressed: _toggleEdit,
-            ),
-          ],
-        ],
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -203,6 +244,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
                           currency: currency,
                           onDateChanged: (date) =>
                               setState(() => _selectedDate = date),
+                          onTimeChanged: (dateTime) =>
+                              setState(() => _selectedDate = dateTime),
                           onTypeChanged: (type) => setState(() {
                             _selectedType = type;
                             _selectedCategory = null;
@@ -219,24 +262,79 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
               ),
             ),
 
-            // Floating Save Button (only in edit mode)
-            if (_isEditing)
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                  child: CustomButton.mainButton(
-                    label: 'Simpan',
-                    textColor: Constant.textPrimary,
-                    fontSize: 16,
-                    onPressed: _saveChanges,
-                    height: 56,
-                    borderRadius: 16,
-                  ),
-                ),
-              ),
+            // Floating actions
+            if (_isEditing) ...[
+              SafeArea(top: false, child: _buildEditActions()),
+            ] else ...[
+              SafeArea(top: false, child: _buildDetailActions()),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          _buttonAction(
+            "Edit",
+            _toggleEdit,
+            Constant.surfaceDark,
+            Constant.limeAccent,
+          ),
+          const SizedBox(width: 12),
+          _buttonAction(
+            "Hapus",
+            _showDeleteDialog,
+            Constant.expenseRed,
+            Constant.textWhite,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          _buttonAction(
+            "Simpan",
+            _saveChanges,
+            Constant.surfaceDark,
+            Constant.limeAccent,
+          ),
+          const SizedBox(width: 12),
+          _buttonAction(
+            "Batal",
+            _cancelEdit,
+            Constant.expenseRed,
+            Constant.textWhite,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buttonAction(
+    String label,
+    VoidCallback onPressed,
+    Color color,
+    Color textColor,
+  ) {
+    return Expanded(
+      child: CustomButton.mainButton(
+        label: label,
+        onPressed: onPressed,
+        height: 48,
+        borderRadius: 12,
+        color: color,
+        textColor: textColor,
+        fontSize: 14,
       ),
     );
   }

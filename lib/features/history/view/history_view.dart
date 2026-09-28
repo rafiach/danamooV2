@@ -10,7 +10,6 @@ import '../../../core/widgets/custom_navigator.dart';
 import '../../../core/widgets/custom_textfield.dart';
 import '../../../core/widgets/date_picker_sheet.dart';
 import '../../../data/models/transaction_model.dart';
-import '../../../generated/assets.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../home/view/widget/list_item_widget.dart';
 import '../provider/history_provider.dart';
@@ -69,8 +68,8 @@ class _HistoryViewState extends State<HistoryView> {
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => CustomNavigator.pop(context),
         ),
-        backgroundColor: Constant.surfaceCard,
-        foregroundColor: Constant.textPrimary,
+        backgroundColor: Constant.bgNeutral,
+        foregroundColor: Constant.surfaceDark,
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -89,6 +88,7 @@ class _HistoryViewState extends State<HistoryView> {
                         onChanged: provider.setSearchQuery,
                         onClear: () => provider.setSearchQuery(''),
                         hint: 'Cari transaksi...',
+                        borderFocusColor: Constant.surfaceDark,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -157,7 +157,7 @@ class _HistoryViewState extends State<HistoryView> {
                                 icon:
                                     tx.category?.icon ??
                                     Icon(LucideIcons.coins),
-                                bgColor: tx.category!.bgColor,
+                                bgIconColor: tx.category!.bgColor,
                                 isIncome: isIncome,
                               ),
                             );
@@ -184,15 +184,14 @@ class _HistoryViewState extends State<HistoryView> {
       },
       child: AnimatedContainer(
         duration: Constant.durationShort,
-        height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 48,
+        width: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: provider.selectedDate != null
-              ? Constant.limeAccent
-              : Constant.surfaceCard,
-          border: provider.selectedDate == null
-              ? Border.all(color: Constant.borderSubtle)
-              : null,
+          color: Constant.surfaceDark,
+          // color: provider.selectedDate != null
+          //     ? Constant.limeAccent
+          //     : Constant.surfaceDark,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -201,9 +200,10 @@ class _HistoryViewState extends State<HistoryView> {
           children: [
             Icon(
               LucideIcons.calendarDays500,
-              color: provider.selectedDate != null
-                  ? Constant.textPrimary
-                  : Constant.limeAccentDark,
+              color: Constant.limeAccent,
+              // color: provider.selectedDate != null
+              //     ? Constant.textPrimary
+              //     : Constant.limeAccentDark,
               size: 24,
             ),
             if (provider.selectedDate != null) ...[
@@ -211,7 +211,7 @@ class _HistoryViewState extends State<HistoryView> {
               Text(
                 DateFormat('dd MMM', 'id_ID').format(provider.selectedDate!),
                 style: Constant.textSemiBold.copyWith(
-                  color: Constant.textPrimary,
+                  color: Constant.limeAccent,
                   fontSize: 13,
                 ),
               ),
@@ -221,7 +221,7 @@ class _HistoryViewState extends State<HistoryView> {
                 child: const Icon(
                   LucideIcons.x500,
                   size: 18,
-                  color: Constant.textPrimary,
+                  color: Constant.limeAccent,
                 ),
               ),
             ],
@@ -234,7 +234,7 @@ class _HistoryViewState extends State<HistoryView> {
   Widget _buildTypeFilterChips(HistoryProvider provider) {
     const types = ['Semua', 'Pemasukan', 'Pengeluaran'];
     return SizedBox(
-      height: 44,
+      height: 48,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
@@ -342,29 +342,34 @@ class _FilterChip extends StatelessWidget {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Constant.limeAccent.withValues(alpha: 0.15)
-              : Colors.transparent,
+          color: isSelected ? Constant.surfaceDark : Constant.surfaceCard,
           border: Border.all(
-            color: isSelected ? Constant.limeAccent : Constant.borderSubtle,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? Constant.surfaceDark : Constant.borderSubtle,
+            width: 1,
           ),
           borderRadius: BorderRadius.circular(20),
+          boxShadow: Constant.shadowSm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Container(child: icon),
+              IconTheme(
+                data: IconThemeData(
+                  color: isSelected
+                      ? Constant.limeAccent
+                      : Constant.textPrimary,
+                  size: 20,
+                ),
+                child: icon!,
+              ),
               const SizedBox(width: 6),
             ],
             Text(
               label,
               style: TextStyle(
-                color: isSelected
-                    ? Constant.textPrimary
-                    : Constant.textSecondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? Constant.limeAccent : Constant.textPrimary,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 fontSize: 13,
               ),
             ),

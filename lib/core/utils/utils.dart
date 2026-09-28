@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../../generated/assets.dart';
 import '../constants/constant.dart';
 
+enum StatusDialogMode { button, autoDismiss }
+
 class Utils {
   // ================= FORMATTER - CURRENCY =================
 
@@ -292,16 +294,20 @@ class Utils {
     String? imagePath,
     String? buttonText,
     VoidCallback? onPressed,
+    StatusDialogMode mode = StatusDialogMode.button,
+    Duration autoDismissDuration = const Duration(seconds: 2),
   }) {
     return _showStatusDialog(
       context,
       title: title,
       content: content,
-      imagePath: Assets.assetsIconsSuccess,
+      imagePath: imagePath ?? Assets.assetsIconsSuccess,
       iconData: Icons.check_circle_outline,
       iconColor: Colors.green,
       buttonText: buttonText,
       onPressed: onPressed,
+      mode: mode,
+      autoDismissDuration: autoDismissDuration,
     );
   }
 
@@ -313,16 +319,20 @@ class Utils {
     String? imagePath,
     String? buttonText,
     VoidCallback? onPressed,
+    StatusDialogMode mode = StatusDialogMode.button,
+    Duration autoDismissDuration = const Duration(seconds: 2),
   }) {
     return _showStatusDialog(
       context,
       title: title,
       content: content,
-      imagePath: Assets.assetsIconsError,
+      imagePath: imagePath ?? Assets.assetsIconsError,
       iconData: Icons.error_outline,
       iconColor: Colors.red,
       buttonText: buttonText,
       onPressed: onPressed,
+      mode: mode,
+      autoDismissDuration: autoDismissDuration,
     );
   }
 
@@ -332,22 +342,24 @@ class Utils {
     required String title,
     required String content,
     String? imagePath,
-    String? buttonText,
-    VoidCallback? onPressed,
+    String confirmText = 'Ya',
+    String cancelText = 'Batal',
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
   }) {
-    return _showStatusDialog(
+    return _showWarningDialog(
       context,
       title: title,
       content: content,
-      imagePath: Assets.assetsIconsWarning,
-      iconData: Icons.warning_amber_rounded,
-      iconColor: Colors.orange,
-      buttonText: buttonText,
-      onPressed: onPressed,
+      imagePath: imagePath ?? Assets.assetsIconsWarning,
+      confirmText: confirmText,
+      cancelText: cancelText,
+      onConfirm: onConfirm,
+      onCancel: onCancel,
     );
   }
 
-  /// Internal Base Dialog for Status
+  /// Internal Base Dialog for Success & Error
   static Future<void> _showStatusDialog(
     BuildContext context, {
     required String title,
@@ -357,61 +369,209 @@ class Utils {
     required Color iconColor,
     String? buttonText,
     VoidCallback? onPressed,
+    required StatusDialogMode mode,
+    required Duration autoDismissDuration,
   }) {
     return showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (imagePath != null)
-                Image.asset(imagePath, width: 100, height: 100)
-              else
-                Icon(iconData, size: 80, color: iconColor),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                content,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: iconColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: onPressed ?? () => Navigator.pop(context),
-                  child: Text(
-                    buttonText ?? "OK",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+      barrierDismissible: mode == StatusDialogMode.autoDismiss,
+      builder: (dialogContext) {
+        // Auto dismiss
+        if (mode == StatusDialogMode.autoDismiss) {
+          Future.delayed(autoDismissDuration, () {
+            if (dialogContext.mounted) {
+              Navigator.pop(dialogContext);
+            }
+          });
+        }
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-        ),
-      ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (imagePath != null)
+                  Image.asset(imagePath, width: 100, height: 100)
+                else
+                  Icon(iconData, size: 80, color: iconColor),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  content,
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+
+                // Tombol hanya muncul pada mode button
+                if (mode == StatusDialogMode.button) ...[
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: iconColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                        onPressed?.call();
+                      },
+                      child: Text(
+                        buttonText ?? 'OK',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Internal Warning Dialog
+  static Future<void> _showWarningDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String? imagePath,
+    required String confirmText,
+    required String cancelText,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (imagePath != null)
+                  Image.asset(imagePath, width: 100, height: 100)
+                else
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    size: 80,
+                    color: Colors.orange,
+                  ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  content,
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 24),
+
+                Row(
+                  children: [
+                    // Batal
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black87,
+                            side: const BorderSide(color: Colors.grey),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            onCancel?.call();
+                          },
+                          child: Text(
+                            cancelText,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // Ya
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            onConfirm?.call();
+                          },
+                          child: Text(
+                            confirmText,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -423,6 +583,7 @@ class Utils {
     String? confirmText,
     String? cancelText,
     bool isDanger = false,
+    VoidCallback? action,
   }) {
     return showDialog<bool>(
       context: context,
@@ -435,7 +596,7 @@ class Utils {
             child: Text(cancelText ?? "Batal"),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: action,
             style: isDanger
                 ? TextButton.styleFrom(foregroundColor: Colors.red)
                 : null,
