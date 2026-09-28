@@ -514,7 +514,7 @@ class _ProfileViewState extends State<ProfileView> {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Sinkronisasi Cloud', style: Constant.h6),
         content: Column(
@@ -532,7 +532,7 @@ class _ProfileViewState extends State<ProfileView> {
               child: CustomButton.mainButton(
                 label: 'Backup ke Cloud',
                 onPressed: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                   await _performBackup(context, user, profileProvider);
                 },
                 height: 48,
@@ -545,7 +545,7 @@ class _ProfileViewState extends State<ProfileView> {
               child: CustomButton.borderButton(
                 label: 'Restore dari Cloud',
                 onPressed: () async {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                   await _performRestore(context, user, profileProvider);
                 },
                 height: 48,

@@ -596,7 +596,7 @@ class Utils {
             child: Text(cancelText ?? "Batal"),
           ),
           TextButton(
-            onPressed: action,
+            onPressed: action ?? () => Navigator.pop(context, true),
             style: isDanger
                 ? TextButton.styleFrom(foregroundColor: Colors.red)
                 : null,
