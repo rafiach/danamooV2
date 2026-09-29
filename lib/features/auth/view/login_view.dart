@@ -40,13 +40,13 @@ class _LoginViewState extends State<LoginView> {
     );
 
     if (!success && mounted) {
-      Utils.showAutoDismissDialog(
+      Utils.showErrorDialog(
         context,
-        title: "Login Gagal!",
+        title: 'Login Gagal',
         content:
             auth.errorMessage ??
-            "Login gagal, pastikan email dan password benar!",
-        imagePath: Assets.assetsIconsError,
+            'Login gagal, pastikan email dan password benar',
+        mode: StatusDialogMode.autoDismiss,
       );
     }
   }
@@ -56,11 +56,11 @@ class _LoginViewState extends State<LoginView> {
     final success = await auth.loginWithGoogle();
 
     if (!success && mounted) {
-      Utils.showAutoDismissDialog(
+      Utils.showErrorDialog(
         context,
         title: 'Login Gagal',
-        content: auth.errorMessage ?? 'Login dengan Google gagal',
-        imagePath: Assets.assetsIconsError,
+        content: auth.errorMessage ?? 'Login gagal, pastikan akun Google benar',
+        mode: StatusDialogMode.autoDismiss,
       );
     }
   }

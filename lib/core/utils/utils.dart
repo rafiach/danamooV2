@@ -296,6 +296,7 @@ class Utils {
     VoidCallback? onPressed,
     StatusDialogMode mode = StatusDialogMode.button,
     Duration autoDismissDuration = const Duration(seconds: 2),
+    Color bgColor = Constant.surfaceCard,
   }) {
     return _showStatusDialog(
       context,
@@ -308,6 +309,7 @@ class Utils {
       onPressed: onPressed,
       mode: mode,
       autoDismissDuration: autoDismissDuration,
+      bgColor: bgColor,
     );
   }
 
@@ -321,6 +323,7 @@ class Utils {
     VoidCallback? onPressed,
     StatusDialogMode mode = StatusDialogMode.button,
     Duration autoDismissDuration = const Duration(seconds: 2),
+    Color bgColor = Constant.surfaceCard,
   }) {
     return _showStatusDialog(
       context,
@@ -333,6 +336,7 @@ class Utils {
       onPressed: onPressed,
       mode: mode,
       autoDismissDuration: autoDismissDuration,
+      bgColor: bgColor,
     );
   }
 
@@ -346,6 +350,7 @@ class Utils {
     String cancelText = 'Batal',
     VoidCallback? onConfirm,
     VoidCallback? onCancel,
+    Color bgColor = Constant.surfaceCard,
   }) {
     return _showWarningDialog(
       context,
@@ -356,6 +361,7 @@ class Utils {
       cancelText: cancelText,
       onConfirm: onConfirm,
       onCancel: onCancel,
+      bgColor: bgColor,
     );
   }
 
@@ -371,6 +377,7 @@ class Utils {
     VoidCallback? onPressed,
     required StatusDialogMode mode,
     required Duration autoDismissDuration,
+    Color? bgColor,
   }) {
     return showDialog(
       context: context,
@@ -386,6 +393,7 @@ class Utils {
         }
 
         return Dialog(
+          backgroundColor: bgColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -465,11 +473,13 @@ class Utils {
     required String cancelText,
     VoidCallback? onConfirm,
     VoidCallback? onCancel,
+    Color? bgColor,
   }) {
     return showDialog(
       context: context,
       builder: (dialogContext) {
         return Dialog(
+          backgroundColor: bgColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -615,6 +625,7 @@ class Utils {
       builder: (context) => PopScope(
         canPop: false,
         child: AlertDialog(
+          backgroundColor: Constant.surfaceCard,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -630,59 +641,59 @@ class Utils {
     );
   }
 
-  static Future<void> showAutoDismissDialog(
-    BuildContext context, {
-    required String title,
-    required String content,
-    Duration duration = const Duration(seconds: 2),
-    String? imagePath,
-    IconData iconData = Icons.check_circle,
-    Color iconColor = Colors.green,
-    VoidCallback? onDismissed,
-  }) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (imagePath != null)
-                  Image.asset(imagePath, width: 100, height: 100)
-                else
-                  Icon(iconData, color: iconColor, size: 64),
-                const SizedBox(height: 16),
-                Text(title, style: Constant.h3),
-                const SizedBox(height: 8),
-                Text(
-                  content,
-                  textAlign: TextAlign.center,
-                  style: Constant.bodyLarge,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  // // static Future<void> showAutoDismissDialog(
+  // //   BuildContext context, {
+  // //   required String title,
+  // //   required String content,
+  // //   Duration duration = const Duration(seconds: 2),
+  // //   String? imagePath,
+  // //   IconData iconData = Icons.check_circle,
+  // //   Color iconColor = Colors.green,
+  // //   VoidCallback? onDismissed,
+  // // }) {
+  // //   showDialog(
+  // //     context: context,
+  // //     barrierDismissible: false,
+  // //     builder: (context) {
+  // //       return Dialog(
+  // //         backgroundColor: Colors.transparent,
+  // //         elevation: 0,
+  // //         child: Container(
+  // //           padding: const EdgeInsets.all(24),
+  // //           decoration: BoxDecoration(
+  // //             color: Colors.white,
+  // //             borderRadius: BorderRadius.circular(20),
+  // //           ),
+  // //           child: Column(
+  // //             mainAxisSize: MainAxisSize.min,
+  // //             children: [
+  // //               if (imagePath != null)
+  // //                 Image.asset(imagePath, width: 100, height: 100)
+  // //               else
+  // //                 Icon(iconData, color: iconColor, size: 64),
+  // //               const SizedBox(height: 16),
+  // //               Text(title, style: Constant.h3),
+  // //               const SizedBox(height: 8),
+  // //               Text(
+  // //                 content,
+  // //                 textAlign: TextAlign.center,
+  // //                 style: Constant.bodyLarge,
+  // //               ),
+  // //             ],
+  // //           ),
+  // //         ),
+  // //       );
+  // //     },
+  // //   );
 
-    // Tutup dialog otomatis setelah durasi tertentu
-    return Future.delayed(duration, () {
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-      onDismissed?.call();
-    });
-  }
+  //   // Tutup dialog otomatis setelah durasi tertentu
+  //   return Future.delayed(duration, () {
+  //     if (context.mounted) {
+  //       Navigator.of(context, rootNavigator: true).pop();
+  //     }
+  //     onDismissed?.call();
+  //   });
+  // }
 
   /// Hide Loading Dialog
   static void hideLoadingDialog(BuildContext context) {

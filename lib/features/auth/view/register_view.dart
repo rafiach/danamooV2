@@ -45,18 +45,18 @@ class _RegisterViewState extends State<RegisterView> {
     if (!mounted) return;
 
     if (success) {
-      Utils.showAutoDismissDialog(
+      Utils.showSuccessDialog(
         context,
         title: "Registrasi Berhasil!",
         content: "Akun kamu Berhasil dibuat. Silahkan login untuk melanjutkan",
-        imagePath: Assets.assetsIconsSuccess,
+        mode: StatusDialogMode.autoDismiss,
       );
     } else {
-      Utils.showAutoDismissDialog(
+      Utils.showErrorDialog(
         context,
-        title: "Registrasi Gagal!",
-        content: auth.errorMessage ?? "Silahkan Registrasi Ulang",
-        imagePath: Assets.assetsIconsError,
+        title: 'Registrasi Gagal!',
+        content: auth.errorMessage ?? 'Silahkan registrasi ulang',
+        mode: StatusDialogMode.autoDismiss,
       );
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +10,6 @@ import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_card.dart';
 import '../../../core/widgets/custom_navigator.dart';
 import '../../../data/models/user_model.dart';
-import '../../../generated/assets.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../provider/profile_provider.dart';
 import '../../home/provider/home_provider.dart';
@@ -44,39 +44,34 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  Future<void> _confirmDeleteAccount(
-    BuildContext context,
-    AuthProvider authProvider,
-  ) async {
-    final confirm = await Utils.showConfirmDialog(
+  void _confirmDeleteAccount(BuildContext context, AuthProvider authProvider) {
+    Utils.showWarningDialog(
       context,
-      title: 'Hapus Akun',
-      content:
-          'Semua data transaksi dan akun kamu akan dihapus permanen. Tindakan ini tidak bisa dibatalkan. Lanjutkan?',
-      confirmText: 'Hapus',
-      cancelText: 'Batal',
-      isDanger: true,
+      title: 'Hapus Akun?',
+      content: 'Apakah kamu yakin ingin menghapus akun?',
+      onConfirm: () async {
+        Utils.showLoadingDialog(context, message: 'Menghapus akun...');
+
+        final success = await authProvider.deleteAccount();
+
+        if (!context.mounted) return;
+
+        Utils.hideLoadingDialog(context);
+
+        if (success) {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        } else {
+          Utils.showErrorDialog(
+            context,
+            title: 'Gagal Menghapus Akun',
+            content:
+                authProvider.errorMessage ??
+                'Terjadi kesalahan, silakan coba lagi',
+            mode: StatusDialogMode.autoDismiss,
+          );
+        }
+      },
     );
-
-    if (confirm != true || !context.mounted) return;
-
-    Utils.showLoadingDialog(context, message: 'Menghapus akun...');
-
-    final success = await authProvider.deleteAccount();
-
-    if (!context.mounted) return;
-    Utils.hideLoadingDialog(context);
-
-    if (success) {
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } else {
-      Utils.showAutoDismissDialog(
-        context,
-        title: 'Gagal Menghapus Akun',
-        content: authProvider.errorMessage ?? 'Terjadi kesalahan',
-        imagePath: Assets.assetsIconsError,
-      );
-    }
   }
 
   @override
@@ -515,42 +510,87 @@ class _ProfileViewState extends State<ProfileView> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Sinkronisasi Cloud', style: Constant.h6),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        backgroundColor: Constant.surfaceCard,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+        contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        title: Column(
           children: [
-            Text(
-              'Pilih aksi sinkronisasi:',
-              style: Constant.bodyMedium.copyWith(
-                color: Constant.textSecondary,
+            // Icon utama
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: Constant.limeAccent.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                LucideIcons.cloudCog600,
+                size: 40,
+                color: Constant.surfaceDark,
               ),
             ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 16),
+
+            Text(
+              'Kelola Data Anda',
+              textAlign: TextAlign.center,
+              style: Constant.h6.copyWith(
+                color: Constant.surfaceDark,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Simpan data Anda dengan aman atau pulihkan '
+              'dari cadangan yang tersedia.',
+              textAlign: TextAlign.center,
+              style: Constant.bodyMedium.copyWith(
+                color: Constant.textSecondary,
+                height: 1.4,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Backup
             SizedBox(
               width: double.infinity,
-              child: CustomButton.mainButton(
-                label: 'Backup ke Cloud',
+              child: CustomButton.borderButton(
+                label: 'Backup Data',
+                icon: LucideIcons.cloudUpload500,
                 onPressed: () async {
                   Navigator.pop(dialogContext);
                   await _performBackup(context, user, profileProvider);
                 },
-                height: 48,
-                borderRadius: 12,
+                height: 50,
+                borderRadius: 14,
+                color: Constant.surfaceDark,
               ),
             ),
+
             const SizedBox(height: 12),
+
+            // Restore
             SizedBox(
               width: double.infinity,
-              child: CustomButton.borderButton(
-                label: 'Restore dari Cloud',
+              child: CustomButton.mainButton(
+                label: 'Restore Data',
+                textColor: Constant.surfaceDark,
+                icon: LucideIcons.cloudDownload500,
                 onPressed: () async {
                   Navigator.pop(dialogContext);
-                  await _performRestore(context, user, profileProvider);
+                  _performRestore(context, user, profileProvider);
                 },
-                height: 48,
-                borderRadius: 12,
-                color: Constant.limeAccent,
+                height: 50,
+                borderRadius: 14,
               ),
             ),
           ],
@@ -578,37 +618,44 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  Future<void> _performRestore(
+  void _performRestore(
     BuildContext context,
     UserModel user,
     ProfileProvider profileProvider,
-  ) async {
-    final confirm = await Utils.showConfirmDialog(
+  ) {
+    Utils.showWarningDialog(
       context,
       title: 'Restore Data',
       content:
           'Data lokal saat ini akan ditimpa dengan data dari Cloud. Lanjutkan?',
       confirmText: 'Restore',
+      onConfirm: () => _restoreData(context, user, profileProvider),
     );
+  }
 
-    if (confirm != true) return;
-
+  Future<void> _restoreData(
+    BuildContext context,
+    UserModel user,
+    ProfileProvider profileProvider,
+  ) async {
     Utils.showLoadingDialog(context, message: 'Memulihkan data dari Cloud...');
 
     final success = await profileProvider.restoreData();
 
     if (!context.mounted) return;
+
     Utils.hideLoadingDialog(context);
 
     if (success) {
       context.read<HomeProvider>().fetchData(user);
       Utils.showSuccessSnackbar(context, 'Restore data berhasil!');
-    } else {
-      Utils.showErrorSnackbar(
-        context,
-        'Gagal memulihkan data. Pastikan ada backup di Cloud.',
-      );
+      return;
     }
+
+    Utils.showErrorSnackbar(
+      context,
+      'Gagal memulihkan data. Pastikan ada backup di Cloud.',
+    );
   }
 }
 
