@@ -48,7 +48,8 @@ class HistoryProvider extends ChangeNotifier {
       }
 
       // Filter by category (hanya aktif saat Expense dipilih)
-      if (_selectedType == 'Pengeluaran' && _selectedCategory != null) {
+      // Filter by category (aktif saat Pemasukan/Pengeluaran dipilih)
+      if (_selectedType != 'Semua' && _selectedCategory != null) {
         final cat = _categoryMap[t.categoryId];
         if (cat?.name != _selectedCategory) return false;
       }

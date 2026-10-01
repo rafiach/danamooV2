@@ -1,8 +1,6 @@
 import 'package:danamoo/data/models/user_model.dart';
 import 'package:danamoo/data/repositories/transaction_repository.dart';
 import 'package:flutter/material.dart';
-
-import '../../../data/models/category_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../model/insight_model.dart';
 
@@ -36,8 +34,6 @@ class InsightProvider extends ChangeNotifier {
       final int daysInMonth = DateTime(year, month + 1, 0).day;
 
       final allTransactions = await _transactionrepo.getAll(user.id);
-      final allCategories = CategoryModel.all;
-      final catMapById = {for (var c in allCategories) c.id: c.name};
 
       // ── Tab 1: Balance kumulatif ──────────────────────────────────────────
       final List<double> balance = List.filled(daysInMonth, 0.0);
@@ -52,6 +48,7 @@ class InsightProvider extends ChangeNotifier {
               : -tx.amount;
         }
       }
+      final double openingBalance = runningBalance;
       for (int i = 0; i < daysInMonth; i++) {
         for (var tx in allTransactions) {
           if (tx.date.year == year &&
@@ -79,14 +76,43 @@ class InsightProvider extends ChangeNotifier {
         }
       }
 
-      // ── Tab 3: Spending per kategori ─────────────────────────────────────
-      final Map<String, double> categoryMap = {};
+      // ── Tab 3: Total per kategori ─────────────────────────────────────
+      final Map<String, double> expenseCategory = {};
+      final Map<String, double> incomeCategory = {};
       for (var tx in allTransactions) {
+        if (tx.date.year == year && tx.date.month == month) {
+          final target = tx.type == TransactionType.expense
+              ? expenseCategory
+              : incomeCategory;
+          target[tx.categoryId] = (target[tx.categoryId] ?? 0) + tx.amount;
+        }
+      }
+
+      // ── Tab 1: pembanding bulan lalu & statistik ─────────────────────────
+      final now = DateTime.now();
+      final isCurrentMonth = now.year == year && now.month == month;
+      final int visibleDays = isCurrentMonth ? now.day : daysInMonth;
+      // Bulan berjalan dibanding "periode yang sama" bulan lalu, biar adil
+      final int prevCutoff = isCurrentMonth ? now.day : 31;
+      final prevMonth = DateTime(year, month - 1, 1);
+
+      double prevIncome = 0;
+      double prevExpense = 0;
+      int expenseCount = 0;
+      for (var tx in allTransactions) {
+        if (tx.date.year == prevMonth.year &&
+            tx.date.month == prevMonth.month &&
+            tx.date.day <= prevCutoff) {
+          if (tx.type == TransactionType.income) {
+            prevIncome += tx.amount;
+          } else {
+            prevExpense += tx.amount;
+          }
+        }
         if (tx.date.year == year &&
             tx.date.month == month &&
             tx.type == TransactionType.expense) {
-          final catName = catMapById[tx.categoryId] ?? 'Lainnya';
-          categoryMap[catName] = (categoryMap[catName] ?? 0) + tx.amount;
+          expenseCount++;
         }
       }
 
@@ -95,7 +121,13 @@ class InsightProvider extends ChangeNotifier {
         dayLabels: labels,
         incomeData: incomePerDay,
         expenseData: expensePerDay,
-        spendingByCategory: categoryMap,
+        expenseByCategory: expenseCategory,
+        incomeByCategory: incomeCategory,
+        openingBalance: openingBalance,
+        prevIncome: prevIncome,
+        prevExpense: prevExpense,
+        expenseCount: expenseCount,
+        visibleDays: visibleDays,
       );
     } catch (e) {
       errorMessage = 'Gagal memuat data insight: $e';

@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart' hide Constant;
 import 'package:danamoo/core/constants/constant.dart';
 import 'package:danamoo/core/services/notification_service.dart';
 import 'package:danamoo/core/services/storage_service.dart';
+import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/repositories/auth_repository.dart';
 import 'package:danamoo/data/repositories/sync_repository.dart';
 import 'package:danamoo/data/repositories/transaction_repository.dart';
 import 'package:danamoo/features/auth/provider/auth_provider.dart';
 import 'package:danamoo/features/auth/view/login_view.dart';
+import 'package:danamoo/features/category/provider/category_prvider.dart';
 import 'package:danamoo/features/history/provider/history_provider.dart';
 import 'package:danamoo/features/home/provider/home_provider.dart';
 import 'package:danamoo/features/home/view/home_view.dart';
@@ -46,6 +48,7 @@ void main() async {
   );
 
   final storage = await StorageService.getInstance();
+  CategoryModel.setOverrides(storage.getCategoryOverrides());
   await HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
 
   runApp(MyApp(storage: storage));
@@ -88,6 +91,12 @@ class MyApp extends StatelessWidget {
           create: (_) => ProfileProvider(
             authRepository: authRepository,
             syncRepository: syncRepository,
+            transactionRepository: transactionRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CategoryProvider(
+            storage: storage,
             transactionRepository: transactionRepository,
           ),
         ),

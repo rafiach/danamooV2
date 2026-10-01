@@ -2,16 +2,13 @@ import 'dart:io';
 
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
-
 import '../../../core/constants/constant.dart';
 import '../../../core/utils/utils.dart';
 import '../../../core/widgets/custom_appbar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_navigator.dart';
 import '../../../data/models/transaction_model.dart';
-import '../../../generated/assets.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../home/provider/home_provider.dart';
 import '../../transaction/provider/transaction_provider.dart';
@@ -35,9 +32,10 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
   late TextEditingController _noteController;
   late DateTime _selectedDate;
   late TransactionType _selectedType;
-  CategoryModel? _selectedCategory;
-  List<CategoryModel> _incomeCategories = [];
-  List<CategoryModel> _expenseCategories = [];
+  String? _selectedCategoryId;
+  CategoryModel? get _selectedCategory => _selectedCategoryId == null
+      ? null
+      : CategoryModel.getById(_selectedCategoryId!);
 
   @override
   void initState() {
@@ -52,17 +50,7 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     _noteController = TextEditingController(text: tx.note ?? '');
     _selectedDate = tx.date;
     _selectedType = tx.type;
-    _selectedCategory = widget.data.category;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCategories());
-  }
-
-  Future<void> _loadCategories() async {
-    if (!mounted) return;
-    setState(() {
-      _incomeCategories = CategoryModel.incomeCategories;
-      _expenseCategories = CategoryModel.expenseCategories;
-    });
+    _selectedCategoryId = tx.categoryId;
   }
 
   @override
@@ -92,7 +80,7 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
       _noteController.text = tx.note ?? '';
       _selectedDate = tx.date;
       _selectedType = tx.type;
-      _selectedCategory = widget.data.category;
+      _selectedCategoryId = tx.categoryId;
     });
   }
 
@@ -112,6 +100,16 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
       return;
     }
 
+    if (_selectedType == TransactionType.expense &&
+        _selectedCategoryId == null) {
+      Utils.showWarningDialog(
+        context,
+        title: 'Pilih Kategori',
+        content: 'Pilih kategori pengeluaran terlebih dahulu',
+      );
+      return;
+    }
+
     final provider = context.read<TransactionProvider>();
 
     final success = await provider.update(
@@ -121,7 +119,7 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
       note: _noteController.text,
       date: _selectedDate,
       type: _selectedType,
-      categoryId: _selectedCategory?.id,
+      categoryId: _selectedCategoryId,
       createdAt: widget.data.transaction.createdAt,
     );
 
@@ -210,8 +208,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     final user = context.read<AuthProvider>().user;
     final currency = user?.currency ?? 'IDR';
     final currentCategories = _selectedType == TransactionType.income
-        ? _incomeCategories
-        : _expenseCategories;
+        ? CategoryModel.incomeCategories
+        : CategoryModel.expenseCategories;
 
     return Scaffold(
       backgroundColor: Constant.bgNeutral,
@@ -248,10 +246,12 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
                               setState(() => _selectedDate = dateTime),
                           onTypeChanged: (type) => setState(() {
                             _selectedType = type;
-                            _selectedCategory = null;
+                            _selectedCategoryId = type == TransactionType.income
+                                ? 'inc_1'
+                                : null;
                           }),
                           onCategoryChanged: (cat) =>
-                              setState(() => _selectedCategory = cat),
+                              setState(() => _selectedCategoryId = cat?.id),
                         )
                       : HistoryDetailContent(
                           transaction: tx,

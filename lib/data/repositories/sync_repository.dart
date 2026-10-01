@@ -1,4 +1,5 @@
 import 'package:danamoo/core/services/storage_service.dart';
+import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/models/user_model.dart';
 import 'package:danamoo/data/sources/local/transaction_local.dart';
 import 'package:danamoo/data/sources/remote/sync_remote.dart';
@@ -31,6 +32,7 @@ class SyncRepository {
       final success = await _remote.backup(
         user: user,
         transactions: transactions,
+        categoryOverrides: _storage.getCategoryOverrides(),
       );
 
       if (!success) {
@@ -65,6 +67,11 @@ class SyncRepository {
       // Timpa data lokal dengan data dari remote
       await _local.saveAll(userId, result.transactions);
       await _storage.saveUser(result.user!.toJson());
+      final override = result.categoryOverrides;
+      if (override != null) {
+        await _storage.saveCategoryOverrides(override);
+        CategoryModel.setOverrides(override);
+      }
 
       return SyncResult(success: true);
     } catch (e) {

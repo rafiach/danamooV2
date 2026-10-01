@@ -202,13 +202,15 @@ class _TransactionViewState extends State<TransactionView> {
 
                           const SizedBox(height: 24),
 
-                          // Category (Expense only)
-                          if (provider.isExpense) ...[
-                            _SectionLabel('KATEGORI'),
-                            const SizedBox(height: 12),
-                            _buildCategoryGrid(provider),
-                            const SizedBox(height: 24),
-                          ],
+                          // category
+                          _SectionLabel(
+                            provider.isExpense
+                                ? 'KATEGORI'
+                                : 'SUMBER PEMASUKAN',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildCategoryGrid(provider),
+                          const SizedBox(height: 24),
 
                           // Description
                           _SectionLabel('DESKRIPSI'),

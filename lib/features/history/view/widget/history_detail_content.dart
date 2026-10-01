@@ -31,7 +31,7 @@ class HistoryDetailContent extends StatelessWidget {
           children: [
             _headerInfo(),
             const SizedBox(height: 32),
-            if (!_isIncome && category != null) ...[
+            if (category != null) ...[
               CustomCard.surface(
                 borderRadius: 20,
                 color: Constant.surfaceCard,
@@ -53,7 +53,7 @@ class HistoryDetailContent extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Kategori',
+                            _isIncome ? 'Sumber Pemasukan' : 'Kategori',
                             style: Constant.caption.copyWith(
                               color: Constant.textSecondary,
                             ),

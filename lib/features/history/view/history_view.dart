@@ -103,7 +103,7 @@ class _HistoryViewState extends State<HistoryView> {
               _buildTypeFilterChips(provider),
 
               // Category Filter (only when Expense selected)
-              if (provider.selectedType == 'Pengeluaran') ...[
+              if (provider.selectedType != 'Semua') ...[
                 const SizedBox(height: 10),
                 _buildCategoryFilterChips(provider),
               ],
@@ -157,7 +157,9 @@ class _HistoryViewState extends State<HistoryView> {
                                 icon:
                                     tx.category?.icon ??
                                     Icon(LucideIcons.coins),
-                                bgIconColor: tx.category!.bgColor,
+                                bgIconColor:
+                                    tx.category?.bgColor ??
+                                    Constant.otherSecond,
                                 isIncome: isIncome,
                               ),
                             );
@@ -254,8 +256,11 @@ class _HistoryViewState extends State<HistoryView> {
   }
 
   Widget _buildCategoryFilterChips(HistoryProvider provider) {
+    final type = provider.selectedType == 'Pemasukan'
+        ? TransactionType.income
+        : TransactionType.expense;
     final expenseCategories = provider.categories
-        .where((cat) => cat.type == TransactionType.expense)
+        .where((cat) => cat.type == type)
         .toList();
 
     return SizedBox(

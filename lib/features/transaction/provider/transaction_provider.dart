@@ -5,7 +5,6 @@ import 'package:danamoo/data/repositories/transaction_repository.dart';
 
 import '../model/transaction_model.dart';
 
-// enum TransactionType { income, expense }
 enum TransactionStatus { initial, loading, loaded, saving, success, error }
 
 class TransactionProvider extends ChangeNotifier {
@@ -19,20 +18,28 @@ class TransactionProvider extends ChangeNotifier {
   String? _errorMessage;
 
   TransactionType _activeType = TransactionType.income;
-  CategoryModel? _selectedCategory;
+  String? _selectedCategoryId;
+  static const _defaultIncomeId = 'inc_1';
 
   TransactionStatus get status => _status;
   TransactionFormData? get formData => _formData;
   String? get errorMessage => _errorMessage;
   TransactionType get activeType => _activeType;
-  CategoryModel? get selectedCategory => _selectedCategory;
+  CategoryModel? get selectedCategory {
+    final id =
+        _selectedCategoryId ??
+        (_activeType == TransactionType.income ? _defaultIncomeId : null);
+    return id == null ? null : CategoryModel.getById(id);
+  }
+
   bool get isLoading => _status == TransactionStatus.loading;
   bool get isSaving => _status == TransactionStatus.saving;
   bool get isSuccess => _status == TransactionStatus.success;
   bool get isExpense => _activeType == TransactionType.expense;
 
-  List<CategoryModel> get currentCategories =>
-      _formData?.categoriesFor(_activeType) ?? [];
+  List<CategoryModel> get currentCategories => isExpense
+      ? CategoryModel.expenseCategories
+      : CategoryModel.incomeCategories;
 
   // ================= LOAD CATEGORIES =================
   Future<void> loadCategories() async {
@@ -57,13 +64,13 @@ class TransactionProvider extends ChangeNotifier {
   void setType(TransactionType type) {
     if (_activeType == type) return;
     _activeType = type;
-    _selectedCategory = null;
+    _selectedCategoryId = null;
     notifyListeners();
   }
 
   // ================= SELECT CATEGORY =================
   void setCategory(CategoryModel? category) {
-    _selectedCategory = category;
+    _selectedCategoryId = category?.id;
     notifyListeners();
   }
 
@@ -81,7 +88,7 @@ class TransactionProvider extends ChangeNotifier {
       return false;
     }
 
-    if (_activeType == TransactionType.expense && _selectedCategory == null) {
+    if (_activeType == TransactionType.expense && selectedCategory == null) {
       _errorMessage = 'Pilih kategori terlebih dahulu';
       _status = TransactionStatus.error;
       notifyListeners();
@@ -93,7 +100,7 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
 
     final categoryId =
-        _selectedCategory?.id ?? (_formData?.incomeCategories.first.id ?? '');
+        selectedCategory?.id ?? (_formData?.incomeCategories.first.id ?? '');
 
     final result = await _transactionRepository.add(
       userId: userId,
@@ -146,9 +153,7 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final finalCategoryId =
-          categoryId ?? (_formData?.incomeCategories.first.id ?? '');
-
+      final finalCategoryId = categoryId ?? _defaultIncomeId;
       final now = DateTime.now();
       final updatedTx = TransactionModel(
         id: transactionId,
@@ -178,7 +183,7 @@ class TransactionProvider extends ChangeNotifier {
   // ================= RESET =================
   void reset() {
     _activeType = TransactionType.income;
-    _selectedCategory = null;
+    _selectedCategoryId = null;
     _errorMessage = null;
     _status = _formData != null
         ? TransactionStatus.loaded

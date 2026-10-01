@@ -1,3 +1,4 @@
+import 'package:danamoo/features/insight/view/widget/summary_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -81,17 +82,16 @@ class _InsightViewState extends State<InsightView>
                     : TabBarView(
                         controller: _tabController,
                         children: [
-                          BalanceTab(
-                            balanceData: model.balanceData,
-                            dayLabels: model.dayLabels,
-                          ),
+                          SummaryTab(model: model),
                           CashFlowTab(
                             incomeData: model.incomeData,
                             expenseData: model.expenseData,
                             dayLabels: model.dayLabels,
+                            visibleDays: model.visibleDays,
                           ),
                           SpendingTab(
-                            spendingByCategory: model.spendingByCategory,
+                            expenseByCategory: model.expenseByCategory,
+                            incomeByCategory: model.incomeByCategory,
                           ),
                         ],
                       ),
@@ -197,9 +197,9 @@ class _InsightViewState extends State<InsightView>
             fontWeight: FontWeight.w500,
           ),
           tabs: const [
-            Tab(height: 40, text: 'Balance'),
+            Tab(height: 40, text: 'Ringkasan'),
             Tab(height: 40, text: 'Cash Flow'),
-            Tab(height: 40, text: 'Spending'),
+            Tab(height: 40, text: 'Kategori'),
           ],
         ),
       ),

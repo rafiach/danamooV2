@@ -45,12 +45,6 @@ class HistoryEditForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final expenseCategories = categories
-        .where((cat) => cat.type == TransactionType.expense)
-        .toList();
-
-    DateTime _selectedDateTime = selectedDate;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -81,28 +75,26 @@ class HistoryEditForm extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
-        // Category (Expense only)
-        if (_isExpense) ...[
-          _SectionLabel('KATEGORI'),
-          const SizedBox(height: 12),
-          GridView.count(
-            crossAxisCount: 2,
-            childAspectRatio: 2.8,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            children: expenseCategories.map((cat) {
-              final isSelected = selectedCategory?.id == cat.id;
-              return CategoryChip(
-                category: cat,
-                isSelected: isSelected,
-                onTap: () => onCategoryChanged(cat),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 24),
-        ],
+        // Category (Income & Expense)
+        _SectionLabel(_isExpense ? 'KATEGORI' : 'SUMBER PEMASUKAN'),
+        const SizedBox(height: 12),
+        GridView.count(
+          crossAxisCount: 2,
+          childAspectRatio: 2.8,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          children: categories.map((cat) {
+            final isSelected = selectedCategory?.id == cat.id;
+            return CategoryChip(
+              category: cat,
+              isSelected: isSelected,
+              onTap: () => onCategoryChanged(cat),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 24),
 
         // Description
         _SectionLabel('DESKRIPSI'),
@@ -173,8 +165,9 @@ class _DateField extends StatelessWidget {
           initialDate: selectedDate,
           title: 'Pilih Tanggal',
         );
+        if (picked == null) return;
         final newDateTime = DateTime(
-          picked!.year,
+          picked.year,
           picked.month,
           picked.day,
           selectedDate.hour,

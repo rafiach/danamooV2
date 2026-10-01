@@ -11,6 +11,7 @@ import '../../../core/widgets/custom_card.dart';
 import '../../../core/widgets/custom_navigator.dart';
 import '../../../data/models/user_model.dart';
 import '../../auth/provider/auth_provider.dart';
+import '../../category/view/category_manage_view.dart';
 import '../provider/profile_provider.dart';
 import '../../home/provider/home_provider.dart';
 
@@ -163,6 +164,14 @@ class _ProfileViewState extends State<ProfileView> {
                                 context,
                                 user,
                                 profileProvider,
+                              ),
+                            ),
+                            _MenuItemData(
+                              icon: Icons.category_outlined,
+                              title: 'Kelola Kategori',
+                              onTap: () => CustomNavigator.push(
+                                context,
+                                const CategoryManageView(),
                               ),
                             ),
                           ]),
