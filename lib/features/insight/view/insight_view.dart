@@ -92,6 +92,7 @@ class _InsightViewState extends State<InsightView>
                           SpendingTab(
                             expenseByCategory: model.expenseByCategory,
                             incomeByCategory: model.incomeByCategory,
+                            month: provider.selectedMonth,
                           ),
                         ],
                       ),

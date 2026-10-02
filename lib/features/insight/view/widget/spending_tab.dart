@@ -1,20 +1,27 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../core/constants/constant.dart';
 import '../../../../../core/utils/utils.dart';
 import '../../../../../core/widgets/custom_card.dart';
 import '../../../../../data/models/category_model.dart';
+import '../../../../core/widgets/custom_navigator.dart';
 import '../../../../core/widgets/segmented_control.dart';
+import '../../../auth/provider/auth_provider.dart';
+import '../../../history/view/history_view.dart';
+import '../../provider/insight_provider.dart';
 
 class SpendingTab extends StatefulWidget {
   final Map<String, double> expenseByCategory;
   final Map<String, double> incomeByCategory;
+  final DateTime month;
 
   const SpendingTab({
     required this.expenseByCategory,
     required this.incomeByCategory,
+    required this.month,
     super.key,
   });
 
@@ -45,6 +52,26 @@ class _SpendingTabState extends State<SpendingTab> {
   }
 
   String _nameFor(String id) => CategoryModel.getById(id)?.name ?? 'Lainnya';
+  Future<void> _openDetail(String id) async {
+    final category = CategoryModel.getById(id);
+    if (category == null) return;
+
+    await CustomNavigator.push(
+      context,
+      HistoryView(
+        initialType: _showIncome ? 'Pemasukan' : 'Pengeluaran',
+        initialCategory: category.name,
+        initialMonth: widget.month,
+      ),
+    );
+
+    // Transaksi bisa diedit/dihapus di History, segarkan angka tanpa spinner
+    if (!mounted) return;
+    final user = context.read<AuthProvider>().user;
+    if (user != null) {
+      context.read<InsightProvider>().fetchMonthlyData(user, silent: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +103,11 @@ class _SpendingTabState extends State<SpendingTab> {
             _buildChartCard(entries, total),
             const SizedBox(height: 16),
             _buildLegendGrid(entries, total),
+            const SizedBox(height: 12),
+            const Text(
+              'Ketuk kategori untuk melihat transaksinya.',
+              style: TextStyle(fontSize: 11, color: Constant.textSecondary),
+            ),
           ],
         ],
       ),
@@ -194,6 +226,7 @@ class _SpendingTabState extends State<SpendingTab> {
         return CustomCard.surface(
           borderRadius: 16,
           padding: const EdgeInsets.all(12),
+          onTap: () => _openDetail(id),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,

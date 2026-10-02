@@ -16,7 +16,16 @@ import '../provider/history_provider.dart';
 import 'detail_history_view.dart';
 
 class HistoryView extends StatefulWidget {
-  const HistoryView({super.key});
+  final String? initialType;
+  final String? initialCategory;
+  final DateTime? initialMonth;
+
+  const HistoryView({
+    super.key,
+    this.initialType,
+    this.initialCategory,
+    this.initialMonth,
+  });
 
   @override
   State<HistoryView> createState() => _HistoryViewState();
@@ -29,6 +38,13 @@ class _HistoryViewState extends State<HistoryView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.initialType != null) {
+        context.read<HistoryProvider>().applyFilters(
+          type: widget.initialType,
+          category: widget.initialCategory,
+          month: widget.initialMonth,
+        );
+      }
       _loadData();
     });
   }
@@ -106,6 +122,45 @@ class _HistoryViewState extends State<HistoryView> {
               if (provider.selectedType != 'Semua') ...[
                 const SizedBox(height: 10),
                 _buildCategoryFilterChips(provider),
+              ],
+
+              if (provider.selectedMonth != null) ...[
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: provider.clearMonth,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Constant.limeAccent.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              DateFormat(
+                                'MMMM yyyy',
+                                'id_ID',
+                              ).format(provider.selectedMonth!),
+                              style: Constant.textSemiBold.copyWith(
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(LucideIcons.x500, size: 14),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
 
               const SizedBox(height: 16),

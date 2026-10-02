@@ -26,6 +26,7 @@ class HistoryProvider extends ChangeNotifier {
   String _selectedType = 'Semua'; // 'Semua' | 'Pemasukan' | 'Pengeluaran'
   String? _selectedCategory; // nama kategori expense, nullable
   DateTime? _selectedDate;
+  DateTime? _selectedMonth;
 
   // Getters
   HistoryStatus get status => _status;
@@ -35,6 +36,7 @@ class HistoryProvider extends ChangeNotifier {
   String get selectedType => _selectedType;
   String? get selectedCategory => _selectedCategory;
   DateTime? get selectedDate => _selectedDate;
+  DateTime? get selectedMonth => _selectedMonth;
 
   // Filtered list
   List<HistoryListItem> get filteredTransactions {
@@ -59,6 +61,13 @@ class HistoryProvider extends ChangeNotifier {
         if (t.date.year != _selectedDate!.year ||
             t.date.month != _selectedDate!.month ||
             t.date.day != _selectedDate!.day) {
+          return false;
+        }
+      }
+
+      if (_selectedMonth != null) {
+        if (t.date.year != _selectedMonth!.year ||
+            t.date.month != _selectedMonth!.month) {
           return false;
         }
       }
@@ -117,11 +126,24 @@ class HistoryProvider extends ChangeNotifier {
 
   void setDate(DateTime? date) {
     _selectedDate = date;
+    if (date != null) _selectedMonth = null;
     notifyListeners();
   }
 
   void clearDate() {
     _selectedDate = null;
+    notifyListeners();
+  }
+
+  void clearMonth() {
+    _selectedMonth = null;
+    notifyListeners();
+  }
+
+  void applyFilters({String? type, String? category, DateTime? month}) {
+    _selectedType = type ?? 'Semua';
+    _selectedCategory = category;
+    _selectedMonth = month;
     notifyListeners();
   }
 
@@ -135,5 +157,6 @@ class HistoryProvider extends ChangeNotifier {
     _selectedCategory = null;
     _selectedDate = null;
     _searchQuery = '';
+    _selectedMonth = null;
   }
 }

@@ -24,10 +24,11 @@ class InsightProvider extends ChangeNotifier {
 
   String? errorMessage;
 
-  Future<void> fetchMonthlyData(UserModel user) async {
-    _isLoading = true;
-    notifyListeners();
-
+  Future<void> fetchMonthlyData(UserModel user, {bool silent = false}) async {
+    if (!silent) {
+      _isLoading = true;
+      notifyListeners();
+    }
     try {
       final int year = _selectedMonth.year;
       final int month = _selectedMonth.month;
