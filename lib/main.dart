@@ -20,38 +20,45 @@ import 'package:danamoo/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:danamoo/core/services/widget_callback_service.dart';
 import 'package:home_widget/home_widget.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('id_ID', null);
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  try {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Constant.bgNeutral,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseFirestore.setLoggingEnabled(true);
-  await NotificationService.initialize();
+    await initializeDateFormatting('id_ID', null);
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    await FirebaseFirestore.setLoggingEnabled(true);
+    await NotificationService.initialize();
 
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Constant.bgNeutral,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
+    final storage = await StorageService.getInstance();
+    CategoryModel.setOverrides(storage.getCategoryOverrides());
+    await HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
 
-  final storage = await StorageService.getInstance();
-  CategoryModel.setOverrides(storage.getCategoryOverrides());
-  await HomeWidget.registerInteractivityCallback(widgetBackgroundCallback);
-
-  runApp(MyApp(storage: storage));
+    runApp(MyApp(storage: storage));
+  } finally {
+    FlutterNativeSplash.remove();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -68,8 +75,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) =>
-              AuthProvider()..initService(storage, transactionRepository),
+          create: (_) => AuthProvider()
+            ..initService(storage, transactionRepository)
+            ..checkSession(),
         ),
         ChangeNotifierProvider(
           create: (_) =>
@@ -171,18 +179,9 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-
-    switch (auth.status) {
-      case AuthStatus.initial:
-        return const SplashView();
-      case AuthStatus.loading:
-        return const SplashView();
-      case AuthStatus.authenticated:
-        return const HomeView();
-      case AuthStatus.unauthenticated:
-      case AuthStatus.error:
-        return const LoginView();
-    }
+    final isLoggedIn = context.select<AuthProvider, bool>(
+      (auth) => auth.user != null,
+    );
+    return isLoggedIn ? const HomeView() : const LoginView();
   }
 }

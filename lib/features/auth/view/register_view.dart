@@ -45,12 +45,7 @@ class _RegisterViewState extends State<RegisterView> {
     if (!mounted) return;
 
     if (success) {
-      Utils.showSuccessDialog(
-        context,
-        title: "Registrasi Berhasil!",
-        content: "Akun kamu Berhasil dibuat. Silahkan login untuk melanjutkan",
-        mode: StatusDialogMode.autoDismiss,
-      );
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       Utils.showErrorDialog(
         context,

@@ -34,15 +34,14 @@ class AuthProvider extends ChangeNotifier {
 
   // ================= CHECK SESSION =================
   Future<void> checkSession() async {
-    _status = AuthStatus.loading;
-    notifyListeners();
+    final cachedUser = _authRepository.isLoggedIn
+        ? _authRepository.getCurrentUser()
+        : null;
 
-    if (_authRepository.isLoggedIn) {
-      _user = _authRepository.getCurrentUser();
-      _status = AuthStatus.authenticated;
-    } else {
-      _status = AuthStatus.unauthenticated;
-    }
+    _user = cachedUser;
+    _status = cachedUser != null
+        ? AuthStatus.authenticated
+        : AuthStatus.unauthenticated;
 
     notifyListeners();
   }
@@ -180,7 +179,13 @@ class AuthProvider extends ChangeNotifier {
 
     final userId = _user!.id;
 
-    await _syncRepository.deleteRemoteData(userId);
+    final remoteDeleted = await _syncRepository.deleteRemoteData(userId);
+    if (!remoteDeleted) {
+      _status = AuthStatus.error;
+      _errorMessage = 'Gagal menghapus data di cloud. Periksa koneksi anda';
+      notifyListeners();
+      return false;
+    }
     await _transactionRepository.deleteAll(userId);
 
     final result = await _authRepository.deleteAccount();

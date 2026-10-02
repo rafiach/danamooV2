@@ -5,6 +5,21 @@ import 'package:danamoo/data/models/user_model.dart';
 class SyncRemoteSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  static const _batchLimit = 400;
+
+  Future<void> _commitInChunks<T>(
+    List<T> items,
+    void Function(WriteBatch batch, T item) apply,
+  ) async {
+    for (var i = 0; i < items.length; i += _batchLimit) {
+      final batch = _firestore.batch();
+      for (final item in items.skip(i).take(_batchLimit)) {
+        apply(batch, item);
+      }
+      await batch.commit();
+    }
+  }
+
   // ================= BACKUP =================
   Future<bool> backup({
     required UserModel user,
@@ -15,15 +30,28 @@ class SyncRemoteSource {
       final userRef = _firestore.collection('users').doc(user.id);
       await userRef.set({
         ...user.toJson(),
-        'category_override': categoryOverrides,
+        'category_overrides': categoryOverrides,
       });
 
-      final batch = _firestore.batch();
       final txCollection = userRef.collection('transactions');
-      for (var tx in transactions) {
-        batch.set(txCollection.doc(tx.id), tx.toJson());
+
+      // Hapus dokumen cloud yang sudah dihapus di lokal, kalau tidak transaksi
+      // itu muncul lagi saat restore. Dilewati kalau lokal kosong, supaya HP
+      // baru yang belum sempat restore tidak mengosongkan backup.
+      if (transactions.isNotEmpty) {
+        final localIds = transactions.map((t) => t.id).toSet();
+        final remote = await txCollection.get();
+        final stale = remote.docs
+            .where((d) => !localIds.contains(d.id))
+            .map((d) => d.reference)
+            .toList();
+        await _commitInChunks(stale, (batch, ref) => batch.delete(ref));
       }
-      await batch.commit();
+
+      await _commitInChunks(
+        transactions,
+        (batch, tx) => batch.set(txCollection.doc(tx.id), tx.toJson()),
+      );
 
       return true;
     } catch (e) {
@@ -85,11 +113,11 @@ class SyncRemoteSource {
     final userRef = _firestore.collection('users').doc(userId);
     final txSnapshot = await userRef.collection('transactions').get();
 
-    final batch = _firestore.batch();
-    for (var doc in txSnapshot.docs) {
-      batch.delete(doc.reference);
-    }
-    batch.delete(userRef);
-    await batch.commit();
+    await _commitInChunks(
+      txSnapshot.docs.map((d) => d.reference).toList(),
+      (batch, ref) => batch.delete(ref),
+    );
+    // Dokumen user dihapus terakhir, jadi kalau gagal di tengah masih bisa diulang
+    await userRef.delete();
   }
 }
