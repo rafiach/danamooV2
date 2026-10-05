@@ -88,6 +88,9 @@ class _InsightViewState extends State<InsightView>
                             expenseData: model.expenseData,
                             dayLabels: model.dayLabels,
                             visibleDays: model.visibleDays,
+                            trendMonths: model.trendMonths,
+                            trendIncome: model.trendIncome,
+                            trendExpense: model.trendExpense,
                           ),
                           SpendingTab(
                             expenseByCategory: model.expenseByCategory,

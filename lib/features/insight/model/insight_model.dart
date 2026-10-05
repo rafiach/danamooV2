@@ -10,6 +10,9 @@ class InsightModel {
   final double prevExpense;
   final int expenseCount;
   final int visibleDays;
+  final List<DateTime> trendMonths; // 6 bulan, berakhir di bulan terpilih
+  final List<double> trendIncome;
+  final List<double> trendExpense;
 
   InsightModel({
     required this.balanceData,
@@ -23,5 +26,8 @@ class InsightModel {
     required this.prevExpense,
     required this.expenseCount,
     required this.visibleDays,
+    required this.trendMonths,
+    required this.trendIncome,
+    required this.trendExpense,
   });
 }

@@ -117,6 +117,26 @@ class InsightProvider extends ChangeNotifier {
         }
       }
 
+      // ── Tren 6 bulan (berakhir di bulan terpilih) ────────────────────────
+      // DateTime(year, month - 5 + i) otomatis menangani lintas tahun
+      final trendMonths = List.generate(
+        6,
+        (i) => DateTime(year, month - 5 + i, 1),
+      );
+      final trendIncome = List.filled(6, 0.0);
+      final trendExpense = List.filled(6, 0.0);
+      for (var tx in allTransactions) {
+        final idx = trendMonths.indexWhere(
+          (m) => m.year == tx.date.year && m.month == tx.date.month,
+        );
+        if (idx == -1) continue;
+        if (tx.type == TransactionType.income) {
+          trendIncome[idx] += tx.amount;
+        } else {
+          trendExpense[idx] += tx.amount;
+        }
+      }
+
       _insightModel = InsightModel(
         balanceData: balance,
         dayLabels: labels,
@@ -129,6 +149,9 @@ class InsightProvider extends ChangeNotifier {
         prevExpense: prevExpense,
         expenseCount: expenseCount,
         visibleDays: visibleDays,
+        trendMonths: trendMonths,
+        trendIncome: trendIncome,
+        trendExpense: trendExpense,
       );
     } catch (e) {
       errorMessage = 'Gagal memuat data insight: $e';

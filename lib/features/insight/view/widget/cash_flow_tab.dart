@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:danamoo/core/constants/constant.dart';
@@ -31,12 +32,17 @@ class CashFlowTab extends StatelessWidget {
   final List<double> expenseData;
   final List<String> dayLabels;
   final int visibleDays; // hari yang sudah berjalan (bulan berjalan = hari ini)
-
+  final List<DateTime> trendMonths;
+  final List<double> trendIncome;
+  final List<double> trendExpense;
   const CashFlowTab({
     required this.incomeData,
     required this.expenseData,
     required this.dayLabels,
     required this.visibleDays,
+    required this.trendMonths,
+    required this.trendIncome,
+    required this.trendExpense,
     super.key,
   });
 
@@ -77,6 +83,8 @@ class CashFlowTab extends StatelessWidget {
           _buildChartCard(weeks, maxY, yInterval),
           const SizedBox(height: 8),
           _buildWeeklyList(weeks),
+          const SizedBox(height: 8),
+          _buildTrendCard(),
         ],
       ),
     );
@@ -264,6 +272,212 @@ class CashFlowTab extends StatelessWidget {
             if (i != weeks.length - 1)
               const Divider(height: 1, color: Constant.borderSubtle),
           ],
+        ],
+      ),
+    );
+  }
+
+  // ================= TREN 6 BULAN =================
+  Widget _buildTrendCard() {
+    final double maxVal = [...trendIncome, ...trendExpense].reduce(max);
+    final double maxY = maxVal == 0 ? 100 : maxVal * 1.25;
+    final double yInterval = (maxY / 4).clamp(1.0, double.infinity);
+    final int last = trendMonths.length - 1;
+
+    // Rata-rata hanya dari bulan yang punya data, supaya user baru tidak "turun"
+    final active = [
+      for (int i = 0; i <= last; i++)
+        if (trendIncome[i] > 0 || trendExpense[i] > 0) i,
+    ];
+    final double avgExpense = active.isEmpty
+        ? 0
+        : active.fold<double>(0, (s, i) => s + trendExpense[i]) / active.length;
+
+    // Bulan terpilih berwarna penuh, bulan lain dipudarkan
+    Color shade(Color c, int i) => i == last ? c : c.withValues(alpha: 0.5);
+
+    return CustomCard.surface(
+      borderRadius: 20,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, top: 16),
+            child: Text(
+              'Tren 6 Bulan',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Constant.textPrimary,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 250,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: 20,
+                left: 8,
+                top: 16,
+                bottom: 12,
+              ),
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  minY: 0,
+                  maxY: maxY,
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: yInterval,
+                    getDrawingHorizontalLine: (_) => const FlLine(
+                      color: Constant.borderSubtle,
+                      strokeWidth: 1,
+                    ),
+                  ),
+                  borderData: buildInsightBorderData(),
+                  titlesData: FlTitlesData(
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          final i = value.toInt();
+                          if (i < 0 || i >= trendMonths.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            space: 8,
+                            child: Text(
+                              DateFormat('MMM', 'id_ID').format(trendMonths[i]),
+                              style: TextStyle(
+                                color: i == last
+                                    ? Constant.textPrimary
+                                    : Constant.textSecondary,
+                                fontWeight: i == last
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: yInterval,
+                        reservedSize: 48,
+                        getTitlesWidget: (value, meta) {
+                          if (value == meta.max || value == meta.min) {
+                            return const SizedBox.shrink();
+                          }
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            child: Text(
+                              Utils.formatCompactNumber(value),
+                              style: const TextStyle(
+                                color: Constant.textSecondary,
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  barGroups: List.generate(trendMonths.length, (i) {
+                    return BarChartGroupData(
+                      x: i,
+                      barsSpace: 3,
+                      barRods: [
+                        BarChartRodData(
+                          toY: trendIncome[i],
+                          color: shade(Constant.incomeGreenAccentDark, i),
+                          width: 10,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
+                        ),
+                        BarChartRodData(
+                          toY: trendExpense[i],
+                          color: shade(Constant.expenseRed, i),
+                          width: 10,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => Colors.blueGrey.shade800,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final month = DateFormat(
+                          'MMMM yyyy',
+                          'id_ID',
+                        ).format(trendMonths[groupIndex]);
+                        final label = rodIndex == 0 ? 'Income' : 'Expense';
+                        return BarTooltipItem(
+                          '$month\n$label\n${Utils.formatIDR(rod.toY)}',
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InsightLegendDot(
+                color: Constant.incomeGreenAccentDark,
+                label: 'Income',
+              ),
+              SizedBox(width: 20),
+              InsightLegendDot(color: Constant.expenseRed, label: 'Expense'),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Rata-rata pengeluaran per bulan',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Constant.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  Utils.formatIDR(avgExpense),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Constant.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
