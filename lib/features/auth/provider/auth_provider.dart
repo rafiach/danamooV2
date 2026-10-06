@@ -1,3 +1,4 @@
+import 'package:danamoo/data/repositories/wallet_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:danamoo/core/services/storage_service.dart';
 import 'package:danamoo/data/models/user_model.dart';
@@ -187,6 +188,7 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
     await _transactionRepository.deleteAll(userId);
+    await WalletRepository().deleteAll(userId);
 
     final result = await _authRepository.deleteAccount();
 

@@ -1,3 +1,4 @@
+import 'package:danamoo/data/models/wallet_model.dart';
 import 'package:flutter/material.dart';
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/models/transaction_model.dart';
@@ -36,6 +37,7 @@ class TransactionProvider extends ChangeNotifier {
   bool get isSaving => _status == TransactionStatus.saving;
   bool get isSuccess => _status == TransactionStatus.success;
   bool get isExpense => _activeType == TransactionType.expense;
+  bool get isTransfer => _activeType == TransactionType.transfer;
 
   List<CategoryModel> get currentCategories => isExpense
       ? CategoryModel.expenseCategories
@@ -77,6 +79,8 @@ class TransactionProvider extends ChangeNotifier {
   // ================= SUBMIT =================
   Future<bool> submit({
     required String userId,
+    String walletId = WalletModel.mainId,
+    String? toWalletId,
     required double amount,
     String? note,
     DateTime? date,
@@ -95,6 +99,14 @@ class TransactionProvider extends ChangeNotifier {
       return false;
     }
 
+    if (_activeType == TransactionType.transfer &&
+        (toWalletId == null || toWalletId == walletId)) {
+      _errorMessage = 'Pilih dompet asal dan tujuan yang berbeda';
+      _status = TransactionStatus.error;
+      notifyListeners();
+      return false;
+    }
+
     _status = TransactionStatus.saving;
     _errorMessage = null;
     notifyListeners();
@@ -102,14 +114,25 @@ class TransactionProvider extends ChangeNotifier {
     final categoryId =
         selectedCategory?.id ?? (_formData?.incomeCategories.first.id ?? '');
 
-    final result = await _transactionRepository.add(
-      userId: userId,
-      categoryId: categoryId,
-      type: _activeType,
-      amount: amount,
-      note: note?.trim().isEmpty == true ? null : note?.trim(),
-      date: date,
-    );
+    debugPrint('2 PROVIDER walletId=$walletId');
+    final result = _activeType == TransactionType.transfer
+        ? await _transactionRepository.addTransfer(
+            userId: userId,
+            fromWalletId: walletId,
+            toWalletId: toWalletId!,
+            amount: amount,
+            note: note?.trim().isEmpty == true ? null : note?.trim(),
+            date: date,
+          )
+        : await _transactionRepository.add(
+            userId: userId,
+            walletId: walletId,
+            categoryId: categoryId,
+            type: _activeType,
+            amount: amount,
+            note: note?.trim().isEmpty == true ? null : note?.trim(),
+            date: date,
+          );
 
     if (result != null) {
       _status = TransactionStatus.success;
@@ -126,6 +149,8 @@ class TransactionProvider extends ChangeNotifier {
   // ================= UPDATE =================
   Future<bool> update({
     required String userId,
+    String walletId = WalletModel.mainId,
+    String? toWalletId,
     required String transactionId,
     required double amount,
     String? note,
@@ -147,17 +172,28 @@ class TransactionProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    if (type == TransactionType.transfer &&
+        (toWalletId == null || toWalletId == walletId)) {
+      _errorMessage = 'Pilih dompet asal dan tujuan yang berbeda';
+      _status = TransactionStatus.error;
+      notifyListeners();
+      return false;
+    }
 
     _status = TransactionStatus.saving;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final finalCategoryId = categoryId ?? _defaultIncomeId;
+      final finalCategoryId = type == TransactionType.transfer
+          ? ''
+          : (categoryId ?? (_formData?.incomeCategories.first.id ?? ''));
       final now = DateTime.now();
       final updatedTx = TransactionModel(
         id: transactionId,
         userId: userId,
+        walletId: walletId,
+        toWalletId: type == TransactionType.transfer ? toWalletId : null,
         categoryId: finalCategoryId,
         type: type ?? TransactionType.income,
         amount: amount,

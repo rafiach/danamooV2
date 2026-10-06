@@ -1,4 +1,5 @@
 import 'package:danamoo/data/models/transaction_model.dart';
+import 'package:danamoo/data/models/wallet_model.dart';
 import 'package:danamoo/data/sources/local/transaction_local.dart';
 
 /// Satu-satunya pintu akses data transaksi dari luar (provider dsb).
@@ -41,6 +42,7 @@ class TransactionRepository {
   // ================= ADD =================
   Future<TransactionModel?> add({
     required String userId,
+    String walletId = WalletModel.mainId,
     required String categoryId,
     required TransactionType type,
     required double amount,
@@ -49,8 +51,30 @@ class TransactionRepository {
   }) async {
     return _local.add(
       userId: userId,
+      walletId: walletId,
       categoryId: categoryId,
       type: type,
+      amount: amount,
+      note: note,
+      date: date,
+    );
+  }
+
+  // ================= ADD TRANSFER =================
+  Future<TransactionModel?> addTransfer({
+    required String userId,
+    required String fromWalletId,
+    required String toWalletId,
+    required double amount,
+    String? note,
+    DateTime? date,
+  }) {
+    return _local.add(
+      userId: userId,
+      walletId: fromWalletId,
+      toWalletId: toWalletId,
+      categoryId: '',
+      type: TransactionType.transfer,
       amount: amount,
       note: note,
       date: date,
@@ -68,6 +92,13 @@ class TransactionRepository {
     return _local.delete(userId, transactionId);
   }
 
+  // ================= REASSIGN WALLET =================
+  Future<void> reassignWallet(
+    String userId, {
+    required String fromId,
+    required String toId,
+  }) => _local.reassignWallet(userId, fromId: fromId, toId: toId);
+
   // ================= SAVE ALL (FOR RESTORE) =================
   Future<void> saveAll(
     String userId,
@@ -83,7 +114,14 @@ class TransactionRepository {
     required double initialBalance,
   }) {
     final total = transactions.fold<double>(0, (sum, t) {
-      return t.type == TransactionType.income ? sum + t.amount : sum - t.amount;
+      switch (t.type) {
+        case TransactionType.income:
+          return sum + t.amount;
+        case TransactionType.expense:
+          return sum - t.amount;
+        case TransactionType.transfer:
+          return sum;
+      }
     });
     return initialBalance + total;
   }

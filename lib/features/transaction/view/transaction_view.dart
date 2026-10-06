@@ -1,3 +1,6 @@
+import 'package:danamoo/data/models/wallet_model.dart';
+import 'package:danamoo/data/sources/local/transaction_local.dart';
+import 'package:danamoo/features/wallet/provider/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -5,8 +8,10 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
 import '../../../core/services/notification_service.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../core/utils/currency_input_formatter.dart';
 import '../../../core/utils/utils.dart';
+import '../../../core/utils/wallet_utils.dart';
 import '../../../core/widgets/category_chip.dart';
 import '../../../core/widgets/custom_appbar.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -15,6 +20,7 @@ import '../../../core/widgets/custom_textfield.dart';
 import '../../../core/widgets/date_picker_sheet.dart';
 import '../../../core/widgets/segmented_control.dart';
 import '../../../core/widgets/time_picker_sheet.dart';
+import '../../../core/widgets/wallet_selector.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../home/provider/home_provider.dart';
@@ -31,13 +37,28 @@ class _TransactionViewState extends State<TransactionView> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   DateTime _selectedDateTime = DateTime.now();
+  String _selectedWalletId = WalletModel.mainId;
+  String? _toWalletId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TransactionProvider>().loadCategories();
+      cekId();
     });
+  }
+
+  void cekId() async {
+    final storage = await StorageService.getInstance();
+    final user = storage.getUser();
+    if (user != null) {
+      final transactionSource = TransactionLocalSource();
+      final wallets = await transactionSource.getAll(user['id']);
+      for (final w in wallets) {
+        print('Wallet ID transaksi: ${w.walletId}, wallet: ${w.id}');
+      }
+    }
   }
 
   @override
@@ -103,8 +124,15 @@ class _TransactionViewState extends State<TransactionView> {
     final userId = context.read<AuthProvider>().user?.id ?? '';
     final provider = context.read<TransactionProvider>();
 
+    debugPrint('1 VIEW walletId=$_selectedWalletId');
     final success = await provider.submit(
       userId: userId,
+      walletId: _selectedWalletId,
+      toWalletId: resolveToWalletId(
+        context.read<WalletProvider>().wallets,
+        _selectedWalletId,
+        _toWalletId,
+      ),
       amount: amount,
       note: _noteController.text,
       date: _selectedDateTime,
@@ -116,7 +144,7 @@ class _TransactionViewState extends State<TransactionView> {
         context.read<HomeProvider>().fetchData(user);
       }
 
-      if (user?.notifEnabled == true) {
+      if (user?.notifEnabled == true && !provider.isTransfer) {
         final isIncome = !provider.isExpense;
         NotificationService.showTransactionNotification(
           id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
@@ -144,7 +172,9 @@ class _TransactionViewState extends State<TransactionView> {
     final provider = context.watch<TransactionProvider>();
     final user = context.read<AuthProvider>().user;
     final currency = user?.currency ?? 'IDR';
-
+    final wallets = context.watch<WalletProvider>().wallets;
+    final toId = resolveToWalletId(wallets, _selectedWalletId, _toWalletId);
+    final toWallets = wallets.where((w) => w.id != _selectedWalletId).toList();
     return Scaffold(
       backgroundColor: Constant.bgNeutral,
       appBar: CustomAppBar.standard(
@@ -174,13 +204,14 @@ class _TransactionViewState extends State<TransactionView> {
                         children: [
                           // Type Toggle
                           SegmentedControl(
-                            labels: const ['Pemasukan', 'Pengeluaran'],
-                            selectedIndex: provider.isExpense ? 1 : 0,
-                            onChanged: (index) => provider.setType(
-                              index == 0
-                                  ? TransactionType.income
-                                  : TransactionType.expense,
-                            ),
+                            labels: const [
+                              'Pemasukan',
+                              'Pengeluaran',
+                              'Transfer',
+                            ],
+                            selectedIndex: provider.activeType.index,
+                            onChanged: (index) =>
+                                provider.setType(TransactionType.values[index]),
                             borderRadius: 24,
                             height: 50,
                           ),
@@ -200,6 +231,37 @@ class _TransactionViewState extends State<TransactionView> {
                             ],
                           ),
 
+                          const SizedBox(height: 24),
+                          // Wallet
+                          _SectionLabel(
+                            provider.isTransfer ? 'DARI DOMPET' : 'DOMPET',
+                          ),
+                          const SizedBox(height: 12),
+                          WalletSelector(
+                            wallets: wallets,
+                            selectedId: _selectedWalletId,
+                            onChanged: (w) =>
+                                setState(() => _selectedWalletId = w.id),
+                          ),
+                          const SizedBox(height: 24),
+
+                          if (provider.isTransfer) ...[
+                            _SectionLabel('KE DOMPET'),
+                            const SizedBox(height: 12),
+                            if (toWallets.isEmpty)
+                              Text(
+                                'Buat dompet lain dulu untuk bisa transfer',
+                                style: Constant.caption,
+                              )
+                            else
+                              WalletSelector(
+                                wallets: toWallets,
+                                selectedId: toId!,
+                                onChanged: (w) =>
+                                    setState(() => _toWalletId = w.id),
+                              ),
+                            const SizedBox(height: 24),
+                          ],
                           const SizedBox(height: 24),
 
                           // category

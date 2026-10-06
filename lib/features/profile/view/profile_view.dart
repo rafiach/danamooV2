@@ -12,6 +12,7 @@ import '../../../core/widgets/custom_navigator.dart';
 import '../../../data/models/user_model.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../category/view/category_manage_view.dart';
+import '../../wallet/provider/wallet_provider.dart';
 import '../provider/profile_provider.dart';
 import '../../home/provider/home_provider.dart';
 
@@ -656,6 +657,7 @@ class _ProfileViewState extends State<ProfileView> {
     Utils.hideLoadingDialog(context);
 
     if (success) {
+      context.read<WalletProvider>().load(user);
       context.read<HomeProvider>().fetchData(user);
       Utils.showSuccessSnackbar(context, 'Restore data berhasil!');
       return;

@@ -1,3 +1,4 @@
+import 'package:danamoo/features/wallet/provider/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -9,7 +10,9 @@ import '../../../core/widgets/custom_appbar.dart';
 import '../../../core/widgets/custom_navigator.dart';
 import '../../../core/widgets/custom_textfield.dart';
 import '../../../core/widgets/date_picker_sheet.dart';
+import '../../../core/widgets/wallet_selector.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../../data/models/wallet_model.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../home/view/widget/list_item_widget.dart';
 import '../provider/history_provider.dart';
@@ -19,12 +22,14 @@ class HistoryView extends StatefulWidget {
   final String? initialType;
   final String? initialCategory;
   final DateTime? initialMonth;
+  final String? initialWalledId;
 
   const HistoryView({
     super.key,
     this.initialType,
     this.initialCategory,
     this.initialMonth,
+    this.initialWalledId,
   });
 
   @override
@@ -38,13 +43,16 @@ class _HistoryViewState extends State<HistoryView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.initialType != null) {
+      if (widget.initialType != null || widget.initialWalledId != null) {
         context.read<HistoryProvider>().applyFilters(
           type: widget.initialType,
           category: widget.initialCategory,
           month: widget.initialMonth,
+          walletId: widget.initialWalledId,
         );
+        debugPrint("wallet berhasil: ${widget.initialWalledId}");
       }
+      debugPrint("wallet gagal: ${widget.initialWalledId}");
       _loadData();
     });
   }
@@ -75,6 +83,8 @@ class _HistoryViewState extends State<HistoryView> {
   Widget build(BuildContext context) {
     final provider = context.watch<HistoryProvider>();
     final filteredTransactions = provider.filteredTransactions;
+    final walletProvider = context.watch<WalletProvider>();
+    final wallets = walletProvider.wallets;
 
     return Scaffold(
       backgroundColor: Constant.bgNeutral,
@@ -112,6 +122,11 @@ class _HistoryViewState extends State<HistoryView> {
                   ],
                 ),
               ),
+
+              if (wallets.length > 1) ...[
+                const SizedBox(height: 10),
+                _buildWalletFilterChips(provider, wallets),
+              ],
 
               const SizedBox(height: 10),
 
@@ -186,14 +201,18 @@ class _HistoryViewState extends State<HistoryView> {
                               const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final tx = filteredTransactions[index];
-                            final label =
-                                (tx.transaction.note != null &&
-                                    tx.transaction.note!.isNotEmpty)
-                                ? tx.transaction.note!
+                            final t = tx.transaction;
+                            final isTransfer =
+                                t.type == TransactionType.transfer;
+                            final isIncome = t.type == TransactionType.income;
+                            final date = Utils.formatDateShort(t.date);
+
+                            final label = (t.note?.isNotEmpty ?? false)
+                                ? t.note!
+                                : isTransfer
+                                ? 'Transfer'
                                 : (tx.category?.name ?? 'Unknown');
 
-                            final isIncome =
-                                tx.transaction.type == TransactionType.income;
                             return InkWell(
                               onTap: () {
                                 CustomNavigator.push(
@@ -205,16 +224,21 @@ class _HistoryViewState extends State<HistoryView> {
                               },
                               child: ListTileTransaction(
                                 label: label,
-                                nominal: Utils.formatIDR(tx.transaction.amount),
-                                date: Utils.formatDateShort(
-                                  tx.transaction.date,
-                                ),
-                                icon:
-                                    tx.category?.icon ??
-                                    Icon(LucideIcons.coins),
-                                bgIconColor:
-                                    tx.category?.bgColor ??
-                                    Constant.otherSecond,
+                                nominal: Utils.formatIDR(t.amount),
+                                date: isTransfer
+                                    ? '$date • ${walletProvider.nameOf(t.walletId)} → ${walletProvider.nameOf(t.toWalletId)}'
+                                    : '$date • ${walletProvider.nameOf(t.walletId)}',
+                                icon: isTransfer
+                                    ? const Icon(LucideIcons.arrowLeftRight)
+                                    : (tx.category?.icon ??
+                                          const Icon(LucideIcons.coins)),
+                                bgIconColor: isTransfer
+                                    ? Constant.greyLight
+                                    : (tx.category?.bgColor ??
+                                          Constant.greyLight),
+                                nominalColor: isTransfer
+                                    ? Constant.textSecondary
+                                    : null,
                                 isIncome: isIncome,
                               ),
                             );
@@ -333,6 +357,38 @@ class _HistoryViewState extends State<HistoryView> {
             icon: cat.icon,
             isSelected: isActive,
             onTap: () => provider.setCategory(isActive ? null : cat.name),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWalletFilterChips(
+    HistoryProvider provider,
+    List<WalletModel> wallets,
+  ) {
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: wallets.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _FilterChip(
+              label: 'Semua Dompet',
+              isSelected: provider.selectedWalletId == null,
+              onTap: () => provider.setWallet(null),
+            );
+          }
+          final w = wallets[index - 1];
+          final isActive = provider.selectedWalletId == w.id;
+          return _FilterChip(
+            label: w.name,
+            icon: Icon(WalletIcons.of(w.iconKey)),
+            isSelected: isActive,
+            onTap: () => provider.setWallet(isActive ? null : w.id),
           );
         },
       ),

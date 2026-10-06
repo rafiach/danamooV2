@@ -27,6 +27,7 @@ class HistoryProvider extends ChangeNotifier {
   String? _selectedCategory; // nama kategori expense, nullable
   DateTime? _selectedDate;
   DateTime? _selectedMonth;
+  String? _selectedWalletId;
 
   // Getters
   HistoryStatus get status => _status;
@@ -37,6 +38,7 @@ class HistoryProvider extends ChangeNotifier {
   String? get selectedCategory => _selectedCategory;
   DateTime? get selectedDate => _selectedDate;
   DateTime? get selectedMonth => _selectedMonth;
+  String? get selectedWalletId => _selectedWalletId;
 
   // Filtered list
   List<HistoryListItem> get filteredTransactions {
@@ -70,6 +72,13 @@ class HistoryProvider extends ChangeNotifier {
             t.date.month != _selectedMonth!.month) {
           return false;
         }
+      }
+
+      // Filter by wallet
+      if (_selectedWalletId != null &&
+          t.walletId != _selectedWalletId &&
+          t.toWalletId != _selectedWalletId) {
+        return false;
       }
 
       // Filter by search
@@ -130,6 +139,12 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setWallet(String? walletId) {
+    if (_selectedWalletId == walletId) return;
+    _selectedWalletId = walletId;
+    notifyListeners();
+  }
+
   void clearDate() {
     _selectedDate = null;
     notifyListeners();
@@ -140,10 +155,16 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void applyFilters({String? type, String? category, DateTime? month}) {
+  void applyFilters({
+    String? type,
+    String? category,
+    DateTime? month,
+    String? walletId,
+  }) {
     _selectedType = type ?? 'Semua';
     _selectedCategory = category;
     _selectedMonth = month;
+    _selectedWalletId = walletId;
     notifyListeners();
   }
 
@@ -158,5 +179,6 @@ class HistoryProvider extends ChangeNotifier {
     _selectedDate = null;
     _searchQuery = '';
     _selectedMonth = null;
+    _selectedWalletId = null;
   }
 }

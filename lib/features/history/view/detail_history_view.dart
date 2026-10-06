@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:danamoo/core/utils/wallet_utils.dart';
 import 'package:danamoo/data/models/category_model.dart';
+import 'package:danamoo/features/wallet/provider/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/constant.dart';
@@ -27,11 +29,14 @@ class DetailHistoryView extends StatefulWidget {
 
 class _DetailHistoryViewState extends State<DetailHistoryView> {
   bool _isEditing = false;
+  String? _selectedToWalletId;
 
   late TextEditingController _amountController;
   late TextEditingController _noteController;
   late DateTime _selectedDate;
   late TransactionType _selectedType;
+  late String _selectedWalletId;
+
   String? _selectedCategoryId;
   CategoryModel? get _selectedCategory => _selectedCategoryId == null
       ? null
@@ -51,6 +56,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     _selectedDate = tx.date;
     _selectedType = tx.type;
     _selectedCategoryId = tx.categoryId;
+    _selectedWalletId = tx.walletId;
+    _selectedToWalletId = tx.toWalletId;
   }
 
   @override
@@ -81,6 +88,7 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
       _selectedDate = tx.date;
       _selectedType = tx.type;
       _selectedCategoryId = tx.categoryId;
+      _selectedToWalletId = tx.toWalletId;
     });
   }
 
@@ -115,6 +123,12 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     final success = await provider.update(
       userId: userId,
       transactionId: widget.data.transaction.id,
+      walletId: _selectedWalletId,
+      toWalletId: resolveToWalletId(
+        context.read<WalletProvider>().wallets,
+        _selectedWalletId,
+        _selectedToWalletId,
+      ),
       amount: amount,
       note: _noteController.text,
       date: _selectedDate,
@@ -210,6 +224,13 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
     final currentCategories = _selectedType == TransactionType.income
         ? CategoryModel.incomeCategories
         : CategoryModel.expenseCategories;
+    final walletProvider = context.watch<WalletProvider>();
+    final wallets = walletProvider.wallets;
+    final toWalletId = resolveToWalletId(
+      wallets,
+      _selectedWalletId,
+      _selectedToWalletId,
+    );
 
     return Scaffold(
       backgroundColor: Constant.bgNeutral,
@@ -240,6 +261,13 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
                           selectedCategory: _selectedCategory,
                           categories: currentCategories,
                           currency: currency,
+                          wallets: wallets,
+                          selectedWalletId: _selectedWalletId,
+                          selectedToWalletId: toWalletId ?? '',
+                          onWalletChanged: (w) =>
+                              setState(() => _selectedCategoryId),
+                          onToWalletChanged: (w) =>
+                              setState(() => _selectedToWalletId = w.id),
                           onDateChanged: (date) =>
                               setState(() => _selectedDate = date),
                           onTimeChanged: (dateTime) =>
@@ -257,6 +285,8 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
                           transaction: tx,
                           category: widget.data.category,
                           currency: currency,
+                          walletName: walletProvider.nameOf(tx.walletId),
+                          toWalletName: walletProvider.nameOf(tx.toWalletId),
                         ),
                 ),
               ),

@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../../data/models/wallet_model.dart';
 import '../../generated/assets.dart';
 import '../constants/constant.dart';
+import '../../data/models/wallet_model.dart';
 
 enum StatusDialogMode { button, autoDismiss }
 

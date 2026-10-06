@@ -1,8 +1,11 @@
 import 'package:danamoo/core/services/storage_service.dart';
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/models/user_model.dart';
+import 'package:danamoo/data/repositories/wallet_repository.dart';
 import 'package:danamoo/data/sources/local/transaction_local.dart';
 import 'package:danamoo/data/sources/remote/sync_remote.dart';
+
+import '../sources/local/wallet_local.dart';
 
 class SyncResult {
   final bool success;
@@ -16,6 +19,7 @@ class SyncRepository {
   final SyncRemoteSource _remote;
   final TransactionLocalSource _local;
   final StorageService _storage;
+  final WalletLocalSource _walletLocal = WalletLocalSource();
 
   SyncRepository(this._storage)
     : _remote = SyncRemoteSource(),
@@ -28,10 +32,12 @@ class SyncRepository {
   }) async {
     try {
       final transactions = await _local.getAll(userId);
+      final wallets = await WalletRepository().getAll(user);
 
       final success = await _remote.backup(
         user: user,
         transactions: transactions,
+        wallets: wallets,
         categoryOverrides: _storage.getCategoryOverrides(),
       );
 
@@ -66,6 +72,7 @@ class SyncRepository {
 
       // Timpa data lokal dengan data dari remote
       await _local.saveAll(userId, result.transactions);
+      await _walletLocal.saveAll(userId, result.wallets);
       await _storage.saveUser(result.user!.toJson());
       final override = result.categoryOverrides;
       if (override != null) {

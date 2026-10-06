@@ -1,4 +1,5 @@
 import 'package:danamoo/data/models/category_model.dart';
+import 'package:danamoo/data/models/wallet_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,6 +11,7 @@ import '../../../../core/widgets/custom_textfield.dart';
 import '../../../../core/widgets/date_picker_sheet.dart';
 import '../../../../core/widgets/segmented_control.dart';
 import '../../../../core/widgets/time_picker_sheet.dart';
+import '../../../../core/widgets/wallet_selector.dart';
 import '../../../../data/models/transaction_model.dart';
 
 class HistoryEditForm extends StatelessWidget {
@@ -20,6 +22,11 @@ class HistoryEditForm extends StatelessWidget {
   final CategoryModel? selectedCategory;
   final List<CategoryModel> categories;
   final String currency;
+  final List<WalletModel> wallets;
+  final String selectedWalletId;
+  final ValueChanged<WalletModel> onWalletChanged;
+  final String selectedToWalletId;
+  final ValueChanged<WalletModel> onToWalletChanged;
 
   final ValueChanged<DateTime> onDateChanged;
   final ValueChanged<DateTime> onTimeChanged;
@@ -35,6 +42,11 @@ class HistoryEditForm extends StatelessWidget {
     required this.selectedCategory,
     required this.categories,
     required this.currency,
+    required this.selectedWalletId,
+    required this.wallets,
+    required this.onWalletChanged,
+    required this.selectedToWalletId,
+    required this.onToWalletChanged,
     required this.onDateChanged,
     required this.onTimeChanged,
     required this.onTypeChanged,
@@ -42,6 +54,7 @@ class HistoryEditForm extends StatelessWidget {
   });
 
   bool get _isExpense => selectedType == TransactionType.expense;
+  bool get _isTransfer => selectedType == TransactionType.transfer;
 
   @override
   Widget build(BuildContext context) {
@@ -49,16 +62,18 @@ class HistoryEditForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Type Toggle
-        SegmentedControl(
-          labels: const ['Pemasukan', 'Pengeluaran'],
-          selectedIndex: _isExpense ? 1 : 0,
-          onChanged: (index) => onTypeChanged(
-            index == 0 ? TransactionType.income : TransactionType.expense,
+        if (!_isTransfer) ...[
+          SegmentedControl(
+            labels: const ['Pemasukan', 'Pengeluaran'],
+            selectedIndex: _isExpense ? 1 : 0,
+            onChanged: (index) => onTypeChanged(
+              index == 0 ? TransactionType.income : TransactionType.expense,
+            ),
+            borderRadius: 24,
+            height: 50,
           ),
-          borderRadius: 24,
-          height: 50,
-        ),
-        const SizedBox(height: 24),
+          const SizedBox(height: 24),
+        ],
 
         // Amount Field
         _SectionLabel('NOMINAL'),
@@ -73,6 +88,27 @@ class HistoryEditForm extends StatelessWidget {
             CurrencyInputFormatter(),
           ],
         ),
+        const SizedBox(height: 24),
+
+        _SectionLabel(_isTransfer ? 'DARI DOMPET' : 'DOMPET'),
+        const SizedBox(height: 12),
+        WalletSelector(
+          wallets: wallets,
+          selectedId: selectedWalletId,
+          onChanged: onWalletChanged,
+        ),
+        const SizedBox(height: 24),
+        if (_isTransfer) ...[
+          _SectionLabel('KE DOMPET'),
+          const SizedBox(height: 12),
+          if (selectedToWalletId != null)
+            WalletSelector(
+              wallets: wallets.where((w) => w.id != selectedWalletId).toList(),
+              selectedId: selectedToWalletId!,
+              onChanged: onToWalletChanged,
+            ),
+          const SizedBox(height: 24),
+        ],
         const SizedBox(height: 24),
 
         // Category (Income & Expense)

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:danamoo/data/models/transaction_model.dart';
 import 'package:danamoo/data/models/user_model.dart';
 
+import '../../models/wallet_model.dart';
+
 class SyncRemoteSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -25,6 +27,7 @@ class SyncRemoteSource {
     required UserModel user,
     required List<TransactionModel> transactions,
     required Map<String, dynamic> categoryOverrides,
+    required List<WalletModel> wallets,
   }) async {
     try {
       final userRef = _firestore.collection('users').doc(user.id);
@@ -38,7 +41,7 @@ class SyncRemoteSource {
       // Hapus dokumen cloud yang sudah dihapus di lokal, kalau tidak transaksi
       // itu muncul lagi saat restore. Dilewati kalau lokal kosong, supaya HP
       // baru yang belum sempat restore tidak mengosongkan backup.
-      if (transactions.isNotEmpty) {
+      if (user.lastBackupAt != null) {
         final localIds = transactions.map((t) => t.id).toSet();
         final remote = await txCollection.get();
         final stale = remote.docs
@@ -53,6 +56,23 @@ class SyncRemoteSource {
         (batch, tx) => batch.set(txCollection.doc(tx.id), tx.toJson()),
       );
 
+      final walletCollection = userRef.collection('wallets');
+
+      if (wallets.isNotEmpty) {
+        final localWalletsIds = wallets.map((w) => w.id).toSet();
+        final remoteWallets = await walletCollection.get();
+        final staleWallets = remoteWallets.docs
+            .where((d) => !localWalletsIds.contains(d.id))
+            .map((d) => d.reference)
+            .toList();
+        await _commitInChunks(staleWallets, (batch, ref) => batch.delete(ref));
+      }
+
+      _commitInChunks(
+        wallets,
+        (batch, w) => batch.set(walletCollection.doc(w.id), w.toJson()),
+      );
+
       return true;
     } catch (e) {
       return false;
@@ -64,6 +84,7 @@ class SyncRemoteSource {
     ({
       UserModel? user,
       List<TransactionModel> transactions,
+      List<WalletModel> wallets,
       Map<String, dynamic>? categoryOverrides,
     })
   >
@@ -76,6 +97,7 @@ class SyncRemoteSource {
         return (
           user: null,
           transactions: <TransactionModel>[],
+          wallets: <WalletModel>[],
           categoryOverrides: null,
         );
       }
@@ -94,15 +116,22 @@ class SyncRemoteSource {
           .map((doc) => TransactionModel.fromJson(doc.data()))
           .toList();
 
+      final walletSnapshot = await userRef.collection('wallet').get();
+      final wallets = walletSnapshot.docs
+          .map((doc) => WalletModel.fromJson(doc.data()))
+          .toList();
+
       return (
         user: user,
         transactions: transactions,
+        wallets: wallets,
         categoryOverrides: categoryOverrides,
       );
     } catch (e) {
       return (
         user: null,
         transactions: <TransactionModel>[],
+        wallets: <WalletModel>[],
         categoryOverrides: null,
       );
     }
@@ -112,11 +141,17 @@ class SyncRemoteSource {
   Future<void> deleteUserData(String userId) async {
     final userRef = _firestore.collection('users').doc(userId);
     final txSnapshot = await userRef.collection('transactions').get();
+    final walletSnapshot = await userRef.collection('wallet').get();
 
     await _commitInChunks(
       txSnapshot.docs.map((d) => d.reference).toList(),
       (batch, ref) => batch.delete(ref),
     );
+    await _commitInChunks(
+      walletSnapshot.docs.map((d) => d.reference).toList(),
+      (batch, ref) => batch.delete(ref),
+    );
+
     // Dokumen user dihapus terakhir, jadi kalau gagal di tengah masih bisa diulang
     await userRef.delete();
   }

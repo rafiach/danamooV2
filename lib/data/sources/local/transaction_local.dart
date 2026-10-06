@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:danamoo/data/models/transaction_model.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../models/wallet_model.dart';
 
 class TransactionLocalSource {
   static const _keyPrefix = 'transactions_';
@@ -48,6 +51,8 @@ class TransactionLocalSource {
   // ================= ADD =================
   Future<TransactionModel?> add({
     required String userId,
+    String walletId = WalletModel.mainId,
+    String? toWalletId,
     required String categoryId,
     required TransactionType type,
     required double amount,
@@ -62,6 +67,8 @@ class TransactionLocalSource {
       final newTx = TransactionModel(
         id: const Uuid().v4(),
         userId: userId,
+        walletId: walletId,
+        toWalletId: toWalletId,
         categoryId: categoryId,
         type: type,
         amount: amount,
@@ -70,6 +77,8 @@ class TransactionLocalSource {
         createdAt: now,
         updatedAt: now,
       );
+
+      debugPrint('3 LOCAL walletId=${newTx.walletId}');
 
       all.add(newTx);
       await prefs.setString(
@@ -117,6 +126,32 @@ class TransactionLocalSource {
     } catch (_) {
       return false;
     }
+  }
+
+  Future<void> reassignWallet(
+    String userId, {
+    required String fromId,
+    required String toId,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final all = await getAll(userId);
+    final updated = all
+        .map(
+          (t) => t.copyWith(
+            walletId: t.walletId == fromId ? toId : null,
+            toWalletId: t.toWalletId == fromId ? toId : null,
+          ),
+        )
+        .where(
+          (t) =>
+              !(t.type == TransactionType.transfer &&
+                  t.walletId == t.toWalletId),
+        )
+        .toList();
+    await prefs.setString(
+      _key(userId),
+      jsonEncode(updated.map((e) => e.toJson()).toList()),
+    );
   }
 
   // ================= SAVE ALL (FOR RESTORE) =================

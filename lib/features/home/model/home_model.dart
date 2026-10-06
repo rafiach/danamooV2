@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/models/transaction_model.dart';
 
+import '../../../data/models/wallet_model.dart';
+
 class TransactionItem {
   final String id;
   final String label;
@@ -11,6 +13,7 @@ class TransactionItem {
   final DateTime date;
   final String? note;
   final TransactionType type;
+  final String? extra;
 
   TransactionItem({
     required this.id,
@@ -21,6 +24,7 @@ class TransactionItem {
     required this.date,
     this.note,
     required this.type,
+    this.extra,
   });
 
   factory TransactionItem.fromModels(
@@ -40,6 +44,12 @@ class TransactionItem {
   }
 }
 
+class WalletItem {
+  final WalletModel wallet;
+  final double balance;
+  WalletItem({required this.wallet, required this.balance});
+}
+
 class HomeModel {
   final String userName;
   final String? userAvatar;
@@ -47,6 +57,7 @@ class HomeModel {
   final double totalIncome;
   final double totalExpense;
   final List<TransactionItem> todayTransactions;
+  final List<WalletItem> walletItems;
 
   HomeModel({
     required this.userName,
@@ -55,5 +66,6 @@ class HomeModel {
     required this.totalIncome,
     required this.totalExpense,
     required this.todayTransactions,
+    required this.walletItems,
   });
 }

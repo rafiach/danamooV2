@@ -1,8 +1,12 @@
-enum TransactionType { income, expense }
+import 'package:danamoo/data/models/wallet_model.dart';
+
+enum TransactionType { income, expense, transfer }
 
 class TransactionModel {
   final String id;
   final String userId;
+  final String walletId;
+  final String? toWalletId;
   final String categoryId;
   final TransactionType type;
   final double amount;
@@ -14,6 +18,8 @@ class TransactionModel {
   TransactionModel({
     required this.id,
     required this.userId,
+    required this.walletId,
+    this.toWalletId,
     required this.categoryId,
     required this.type,
     required this.amount,
@@ -27,10 +33,13 @@ class TransactionModel {
     return TransactionModel(
       id: json['id'] ?? '',
       userId: json['user_id'] ?? '',
+      walletId: json['wallet_id'] ?? WalletModel.mainId,
+      toWalletId: json['to_wallet_id'],
       categoryId: json['category_id'] ?? '',
-      type: json['type'] == 'income'
-          ? TransactionType.income
-          : TransactionType.expense,
+      type: TransactionType.values.firstWhere(
+        (e) => e.name == json['type'],
+        orElse: () => TransactionType.expense,
+      ),
       amount: (json['amount'] ?? 0).toDouble(),
       note: json['note'],
       date: DateTime.parse(json['date']),
@@ -42,6 +51,8 @@ class TransactionModel {
   Map<String, dynamic> toJson() => {
     'id': id,
     'user_id': userId,
+    'wallet_id': walletId,
+    'to_wallet_id': toWalletId,
     'category_id': categoryId,
     'type': type.name,
     'amount': amount,
@@ -53,6 +64,8 @@ class TransactionModel {
 
   // Tambahkan di dalam class TransactionModel, setelah toJson()
   TransactionModel copyWith({
+    String? walletId,
+    String? toWalletId,
     String? categoryId,
     TransactionType? type,
     double? amount,
@@ -63,6 +76,8 @@ class TransactionModel {
     return TransactionModel(
       id: id,
       userId: userId,
+      walletId: walletId ?? this.walletId,
+      toWalletId: toWalletId,
       categoryId: categoryId ?? this.categoryId,
       type: type ?? this.type,
       amount: amount ?? this.amount,

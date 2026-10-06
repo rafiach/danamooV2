@@ -4,10 +4,14 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../core/utils/utils.dart';
 import '../../../core/widgets/custom_card.dart';
 import '../../../core/widgets/custom_navigator.dart';
+import '../../../core/widgets/wallet_selector.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../../data/repositories/transaction_repository.dart';
+import '../../../data/sources/local/wallet_local.dart';
 import '../../../generated/assets.dart';
 
 import '../../auth/provider/auth_provider.dart';
@@ -16,6 +20,8 @@ import '../../history/view/history_view.dart';
 import '../../insight/view/insight_view.dart';
 import '../../profile/view/profile_view.dart';
 import '../../transaction/view/transaction_view.dart';
+import '../../wallet/provider/wallet_provider.dart';
+import '../../wallet/view/wallet_view.dart';
 import '../model/home_model.dart';
 import '../provider/home_provider.dart';
 import 'widget/list_item_widget.dart';
@@ -31,12 +37,28 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final user = context.read<AuthProvider>().user;
-      if (user != null) {
-        context.read<HomeProvider>().fetchData(user);
-      }
+      if (user == null) return;
+
+      final walletProvider = context.read<WalletProvider>();
+      await walletProvider.load(user);
+
+      if (!mounted) return;
+      context.read<HomeProvider>().fetchData(user);
     });
+  }
+
+  void cekId() async {
+    final storage = await StorageService.getInstance();
+    final user = storage.getUser();
+    if (user != null) {
+      final walletSource = WalletLocalSource();
+      final wallets = await walletSource.getAll(user['id']);
+      for (final w in wallets) {
+        print('Wallet ID: ${w.id}, Name: ${w.name}');
+      }
+    }
   }
 
   @override
@@ -110,6 +132,8 @@ class _HomeViewState extends State<HomeView> {
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
+                            _buildWalletSection(homeData),
+                            const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -153,19 +177,31 @@ class _HomeViewState extends State<HomeView> {
                                         final isIncome =
                                             transaction.type ==
                                             TransactionType.income;
+                                        final isTransfer =
+                                            transaction.type ==
+                                            TransactionType.transfer;
+                                        final time = Utils.formatDateTimeToTime(
+                                          transaction.date,
+                                        );
+
                                         return ListTileTransaction(
                                           label:
                                               (transaction.note != null &&
                                                   transaction.note!.isNotEmpty)
                                               ? transaction.note!
                                               : transaction.label,
-                                          nominal:
-                                              '${isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
-                                          date: Utils.formatDateTimeToTime(
-                                            transaction.date,
-                                          ),
+                                          nominal: isTransfer
+                                              ? Utils.formatIDR(
+                                                  transaction.amount,
+                                                )
+                                              : '${isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
+                                          date: isTransfer
+                                              ? '$time • ${transaction.extra}'
+                                              : time,
                                           icon: transaction.icon,
-                                          bgIconColor: transaction.color,
+                                          nominalColor: isTransfer
+                                              ? Constant.textSecondary
+                                              : null,
                                           isIncome: isIncome,
                                         );
                                       },
@@ -487,6 +523,102 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildWalletSection(HomeModel? homeData) {
+    final items = homeData?.walletItems ?? [];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Dompet',
+              style: Constant.textSemiBold.copyWith(
+                color: Constant.textPrimary,
+                fontSize: 16,
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await CustomNavigator.push(context, const WalletView());
+                if (!mounted) return;
+                final user = context.read<AuthProvider>().user;
+                if (user != null) context.read<HomeProvider>().fetchData(user);
+              },
+              child: Text(
+                'Kelola',
+                style: Constant.textMedium.copyWith(
+                  color: Constant.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 84,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, i) {
+              final it = items[i];
+              return GestureDetector(
+                onTap: () => CustomNavigator.push(
+                  context,
+                  HistoryView(initialWalledId: it.wallet.id),
+                ),
+                child: Container(
+                  width: 160,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Constant.surfaceCard,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Constant.borderSubtle),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            WalletIcons.of(it.wallet.iconKey),
+                            size: 16,
+                            color: Constant.textSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              it.wallet.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Constant.caption,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        Utils.formatIDR(it.balance),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Constant.textSemiBold.copyWith(
+                          color: Constant.textPrimary,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

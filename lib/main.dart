@@ -6,6 +6,7 @@ import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/repositories/auth_repository.dart';
 import 'package:danamoo/data/repositories/sync_repository.dart';
 import 'package:danamoo/data/repositories/transaction_repository.dart';
+import 'package:danamoo/data/repositories/wallet_repository.dart';
 import 'package:danamoo/features/auth/provider/auth_provider.dart';
 import 'package:danamoo/features/auth/view/login_view.dart';
 import 'package:danamoo/features/category/provider/category_prvider.dart';
@@ -16,6 +17,7 @@ import 'package:danamoo/features/insight/provider/insight_provider.dart';
 import 'package:danamoo/features/profile/provider/profile_provider.dart';
 import 'package:danamoo/features/splash/view/splash_view.dart';
 import 'package:danamoo/features/transaction/provider/transaction_provider.dart';
+import 'package:danamoo/features/wallet/provider/wallet_provider.dart';
 import 'package:danamoo/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +73,7 @@ class MyApp extends StatelessWidget {
     final authRepository = AuthRepository(storage);
     final syncRepository = SyncRepository(storage);
     final transactionRepository = TransactionRepository();
+    final walletRepository = WalletRepository();
 
     return MultiProvider(
       providers: [
@@ -80,8 +83,10 @@ class MyApp extends StatelessWidget {
             ..checkSession(),
         ),
         ChangeNotifierProvider(
-          create: (_) =>
-              HomeProvider(transactionRepository: transactionRepository),
+          create: (_) => HomeProvider(
+            transactionRepository: transactionRepository,
+            walletRepository: walletRepository,
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) =>
@@ -105,6 +110,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => CategoryProvider(
             storage: storage,
+            transactionRepository: transactionRepository,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WalletProvider(
+            walletRepository: WalletRepository(),
             transactionRepository: transactionRepository,
           ),
         ),

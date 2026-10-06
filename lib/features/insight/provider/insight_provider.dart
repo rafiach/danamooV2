@@ -2,6 +2,7 @@ import 'package:danamoo/data/models/user_model.dart';
 import 'package:danamoo/data/repositories/transaction_repository.dart';
 import 'package:flutter/material.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../../data/repositories/wallet_repository.dart';
 import '../model/insight_model.dart';
 
 class InsightProvider extends ChangeNotifier {
@@ -24,6 +25,17 @@ class InsightProvider extends ChangeNotifier {
 
   String? errorMessage;
 
+  double _delta(TransactionModel tx) {
+    switch (tx.type) {
+      case TransactionType.income:
+        return tx.amount;
+      case TransactionType.expense:
+        return -tx.amount;
+      case TransactionType.transfer:
+        return 0;
+    }
+  }
+
   Future<void> fetchMonthlyData(UserModel user, {bool silent = false}) async {
     if (!silent) {
       _isLoading = true;
@@ -39,14 +51,16 @@ class InsightProvider extends ChangeNotifier {
       // ── Tab 1: Balance kumulatif ──────────────────────────────────────────
       final List<double> balance = List.filled(daysInMonth, 0.0);
       final List<String> labels = List.generate(daysInMonth, (i) => '${i + 1}');
-      double runningBalance = user.initialBalance;
+      final wallets = await WalletRepository().getAll(user);
+      double runningBalance = wallets.fold<double>(
+        0,
+        (s, w) => s + w.initialBalance,
+      );
       final startOfMonth = DateTime(year, month, 1);
 
       for (var tx in allTransactions) {
         if (tx.date.isBefore(startOfMonth)) {
-          runningBalance += tx.type == TransactionType.income
-              ? tx.amount
-              : -tx.amount;
+          runningBalance += _delta(tx);
         }
       }
       final double openingBalance = runningBalance;
@@ -55,9 +69,7 @@ class InsightProvider extends ChangeNotifier {
           if (tx.date.year == year &&
               tx.date.month == month &&
               tx.date.day == i + 1) {
-            runningBalance += tx.type == TransactionType.income
-                ? tx.amount
-                : -tx.amount;
+            runningBalance += _delta(tx);
           }
         }
         balance[i] = runningBalance;
@@ -71,7 +83,7 @@ class InsightProvider extends ChangeNotifier {
           final idx = tx.date.day - 1;
           if (tx.type == TransactionType.income) {
             incomePerDay[idx] += tx.amount;
-          } else {
+          } else if (tx.type == TransactionType.expense) {
             expensePerDay[idx] += tx.amount;
           }
         }

@@ -12,15 +12,20 @@ class HistoryDetailContent extends StatelessWidget {
   final TransactionModel transaction;
   final CategoryModel? category;
   final String currency;
+  final String walletName;
+  final String? toWalletName;
 
   const HistoryDetailContent({
     super.key,
     required this.transaction,
     required this.category,
     required this.currency,
+    required this.walletName,
+    this.toWalletName,
   });
 
   bool get _isIncome => transaction.type == TransactionType.income;
+  bool get _isTransfer => transaction.type == TransactionType.transfer;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,53 @@ class HistoryDetailContent extends StatelessWidget {
           children: [
             _headerInfo(),
             const SizedBox(height: 32),
-            if (category != null) ...[
+            CustomCard.surface(
+              borderRadius: 20,
+              color: Constant.surfaceCard,
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Constant.limeAccent.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _isTransfer
+                          ? LucideIcons.arrowLeftRight
+                          : LucideIcons.wallet,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isTransfer ? 'Transfer' : 'Dompet',
+                          style: Constant.caption.copyWith(
+                            color: Constant.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          _isTransfer
+                              ? '$walletName → $toWalletName'
+                              : walletName,
+                          style: Constant.textSemiBold.copyWith(
+                            color: Constant.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (!_isIncome && category != null) ...[
               CustomCard.surface(
                 borderRadius: 20,
                 color: Constant.surfaceCard,
@@ -154,14 +205,18 @@ class HistoryDetailContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                _isIncome
-                    ? LucideIcons.moveDownLeft400
-                    : LucideIcons.moveUpRight400,
+                _isTransfer
+                    ? LucideIcons.arrowLeftRight
+                    : (_isIncome
+                          ? LucideIcons.moveDownLeft400
+                          : LucideIcons.moveUpRight400),
                 color: Constant.limeAccent,
               ),
               const SizedBox(width: 8),
               Text(
-                _isIncome ? 'Pemasukan' : 'Pengeluaran',
+                _isTransfer
+                    ? 'Transfer'
+                    : (_isIncome ? 'Pemasukan' : 'Pengeluaran'),
                 style: Constant.captionBold.copyWith(
                   color: Constant.limeAccent,
                   fontWeight: FontWeight.w800,
@@ -172,7 +227,9 @@ class HistoryDetailContent extends StatelessWidget {
           ),
         ),
         Text(
-          '${_isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
+          _isTransfer
+              ? Utils.formatIDR(transaction.amount)
+              : '${_isIncome ? '+' : '-'} ${Utils.formatIDR(transaction.amount)}',
           textAlign: TextAlign.center,
           style: Constant.h2.copyWith(
             fontSize: 44,
