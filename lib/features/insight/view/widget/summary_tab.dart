@@ -453,7 +453,7 @@ class _CompareRow extends StatelessWidget {
           children: [
             if (hasPrev && !isFlat)
               Icon(
-                isUp ? Icons.arrow_upward : Icons.arrow_downward,
+                isUp ? LucideIcons.arrowUp : LucideIcons.arrowDown,
                 size: 16,
                 color: color,
               ),

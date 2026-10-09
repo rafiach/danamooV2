@@ -91,7 +91,7 @@ class _HistoryViewState extends State<HistoryView> {
       appBar: CustomAppBar.standard(
         title: 'Riwayat',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: () => CustomNavigator.pop(context),
         ),
         backgroundColor: Constant.bgNeutral,
@@ -410,7 +410,7 @@ class _HistoryViewState extends State<HistoryView> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.receipt_long_outlined,
+                LucideIcons.fileX,
                 color: Constant.limeAccentDark,
                 size: 40,
               ),

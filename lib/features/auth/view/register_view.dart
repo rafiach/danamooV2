@@ -1,6 +1,7 @@
 import 'package:danamoo/features/auth/view/widget/auth_header.dart';
 import 'package:danamoo/generated/assets.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -86,7 +87,7 @@ class _RegisterViewState extends State<RegisterView> {
                             controller: _nameController,
                             label: 'Nama Lengkap',
                             hint: 'Masukkan nama lengkap',
-                            prefixIcon: Icons.person_outlined,
+                            prefixIcon: LucideIcons.userPen,
                             textCapitalization: TextCapitalization.words,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -105,7 +106,7 @@ class _RegisterViewState extends State<RegisterView> {
                             controller: _emailController,
                             label: 'Email',
                             hint: 'contoh@email.com',
-                            prefixIcon: Icons.email_outlined,
+                            prefixIcon: LucideIcons.mail,
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value == null || value.isEmpty) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AuthTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -62,7 +63,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                      _obscureText ? LucideIcons.eyeClosed : LucideIcons.eye,
                       size: 20,
                       color: Colors.grey[500],
                     ),

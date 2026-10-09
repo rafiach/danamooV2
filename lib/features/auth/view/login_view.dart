@@ -1,6 +1,6 @@
 import 'package:danamoo/features/auth/view/widget/auth_header.dart';
-import 'package:danamoo/generated/assets.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -96,7 +96,7 @@ class _LoginViewState extends State<LoginView> {
                               controller: _emailController,
                               label: 'Email',
                               hint: 'contoh@email.com',
-                              prefixIcon: Icons.email_outlined,
+                              prefixIcon: LucideIcons.mail,
                               keyboardType: TextInputType.emailAddress,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {

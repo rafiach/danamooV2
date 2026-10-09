@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -94,7 +95,7 @@ class _WalletViewState extends State<WalletView> {
       appBar: CustomAppBar.standard(
         title: 'Dompet',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: () => CustomNavigator.pop(context),
         ),
         backgroundColor: Constant.bgNeutral,

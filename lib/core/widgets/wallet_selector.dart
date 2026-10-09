@@ -18,7 +18,7 @@ class WalletIcons {
       case 'phone':
         return LucideIcons.smartphone;
       default:
-        return LucideIcons.wallet;
+        return LucideIcons.walletMinimal;
     }
   }
 }

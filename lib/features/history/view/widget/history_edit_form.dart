@@ -2,6 +2,7 @@ import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/data/models/wallet_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/constants/constant.dart';
 import '../../../../core/utils/currency_input_formatter.dart';
@@ -223,7 +224,7 @@ class _DateField extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              Icons.calendar_today_outlined,
+              LucideIcons.calendarSearch,
               size: 20,
               color: Constant.limeAccent,
             ),
@@ -284,7 +285,7 @@ class _TimeField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.access_time, size: 20, color: Constant.limeAccent),
+            Icon(LucideIcons.clock, size: 20, color: Constant.limeAccent),
             const SizedBox(width: 12),
             Expanded(
               child: Text(

@@ -124,7 +124,7 @@ class _ProfileViewState extends State<ProfileView> {
                           const SizedBox(height: 8),
                           _buildMenuGroup([
                             _MenuItemData(
-                              icon: Icons.notifications_outlined,
+                              icon: LucideIcons.bellDot,
                               title: 'Notifikasi',
                               trailing: Switch(
                                 value: user.notifEnabled,
@@ -150,7 +150,7 @@ class _ProfileViewState extends State<ProfileView> {
                               onTap: () {},
                             ),
                             _MenuItemData(
-                              icon: Icons.download_rounded,
+                              icon: LucideIcons.download,
                               title: 'Export Data (Excel)',
                               onTap: () => _showExportBottomSheet(
                                 context,
@@ -159,7 +159,7 @@ class _ProfileViewState extends State<ProfileView> {
                               ),
                             ),
                             _MenuItemData(
-                              icon: Icons.cloud_sync_rounded,
+                              icon: LucideIcons.cloudCog,
                               title: 'Sinkronisasi Cloud',
                               onTap: () => _showCloudSyncDialog(
                                 context,
@@ -168,7 +168,7 @@ class _ProfileViewState extends State<ProfileView> {
                               ),
                             ),
                             _MenuItemData(
-                              icon: Icons.category_outlined,
+                              icon: LucideIcons.layoutPanelLeft,
                               title: 'Kelola Kategori',
                               onTap: () => CustomNavigator.push(
                                 context,
@@ -182,21 +182,21 @@ class _ProfileViewState extends State<ProfileView> {
                           const SizedBox(height: 8),
                           _buildMenuGroup([
                             _MenuItemData(
-                              icon: Icons.help_outline_rounded,
+                              icon: LucideIcons.circleQuestionMark,
                               title: 'Bantuan & Dukungan',
                               onTap: () {
                                 // TODO: navigasi ke halaman bantuan
                               },
                             ),
                             _MenuItemData(
-                              icon: Icons.privacy_tip_outlined,
+                              icon: LucideIcons.shieldAlert,
                               title: 'Kebijakan Privasi',
                               onTap: () {
                                 // TODO: navigasi ke halaman kebijakan privasi
                               },
                             ),
                             _MenuItemData(
-                              icon: Icons.info_outline_rounded,
+                              icon: LucideIcons.circleAlert,
                               title: 'Tentang DANAMOO',
                               onTap: () {
                                 // TODO: navigasi ke halaman about
@@ -265,7 +265,7 @@ class _ProfileViewState extends State<ProfileView> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: const Icon(
-                    Icons.arrow_back_ios_new,
+                    LucideIcons.chevronLeft,
                     color: Colors.white,
                     size: 18,
                   ),
@@ -292,7 +292,11 @@ class _ProfileViewState extends State<ProfileView> {
               shape: BoxShape.circle,
             ),
             child: const Center(
-              child: Icon(Icons.person, color: Constant.limeAccent, size: 40),
+              child: Icon(
+                LucideIcons.venetianMask,
+                color: Constant.limeAccent,
+                size: 40,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -382,7 +386,8 @@ class _ProfileViewState extends State<ProfileView> {
         ),
       ),
       trailing:
-          item.trailing ?? Icon(Icons.chevron_right, color: Constant.black),
+          item.trailing ??
+          Icon(LucideIcons.chevronRight, color: Constant.black),
       onTap: item.onTap,
     );
   }

@@ -1,5 +1,6 @@
 import 'package:danamoo/core/widgets/custom_card.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/constants/constant.dart';
 
@@ -71,7 +72,7 @@ class HeroWalletCard extends StatelessWidget {
             color: Constant.greyDark.withValues(alpha: 0.5),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
                 // Income
@@ -79,7 +80,7 @@ class HeroWalletCard extends StatelessWidget {
                   'Income',
                   income,
                   Constant.incomeGreenAccent,
-                  Icons.arrow_downward,
+                  LucideIcons.arrowDown,
                 ),
                 // Divider tengah
                 Container(
@@ -93,7 +94,7 @@ class HeroWalletCard extends StatelessWidget {
                   'Expense',
                   expense,
                   Constant.expenseRed,
-                  Icons.arrow_upward,
+                  LucideIcons.arrowUp,
                 ),
               ],
             ),
@@ -108,7 +109,7 @@ class HeroWalletCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,

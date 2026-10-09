@@ -29,7 +29,7 @@ class _HeroWalletCarouselState extends State<HeroWalletCarousel> {
       case 'phone':
         return LucideIcons.smartphone;
       default:
-        return LucideIcons.wallet;
+        return LucideIcons.walletMinimal;
     }
   }
 

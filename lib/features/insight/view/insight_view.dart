@@ -1,13 +1,13 @@
 import 'package:danamoo/features/insight/view/widget/summary_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
 import '../../../core/widgets/custom_appbar.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../provider/insight_provider.dart';
-import 'widget/balance_tab.dart';
 import 'widget/cash_flow_tab.dart';
 import 'widget/spending_tab.dart';
 
@@ -50,7 +50,7 @@ class _InsightViewState extends State<InsightView>
       appBar: CustomAppBar.standard(
         title: 'Insight',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: Constant.surfaceCard,
@@ -126,7 +126,7 @@ class _InsightViewState extends State<InsightView>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: const Icon(Icons.chevron_left, size: 24),
+              icon: const Icon(LucideIcons.chevronLeft, size: 24),
               color: Constant.textSecondary,
               onPressed: () {
                 final user = context.read<AuthProvider>().user;
@@ -150,7 +150,7 @@ class _InsightViewState extends State<InsightView>
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.chevron_right, size: 24),
+              icon: const Icon(LucideIcons.chevronRight, size: 24),
               color: Constant.textSecondary,
               onPressed: () {
                 final user = context.read<AuthProvider>().user;

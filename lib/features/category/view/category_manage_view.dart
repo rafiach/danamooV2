@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/constant.dart';
@@ -24,7 +25,7 @@ class CategoryManageView extends StatelessWidget {
       appBar: CustomAppBar.standard(
         title: 'Kelola Kategori',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: () => CustomNavigator.pop(context),
         ),
       ),
@@ -71,7 +72,7 @@ class CategoryManageView extends StatelessWidget {
                       child: Center(child: c.icon),
                     ),
                     title: Text(c.name, style: Constant.textSemiBold),
-                    trailing: const Icon(Icons.edit_outlined, size: 20),
+                    trailing: const Icon(LucideIcons.pencilLine, size: 20),
                     onTap: () => _edit(context, c),
                   ),
                 )

@@ -253,7 +253,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             child: Center(
               child: Icon(
-                Icons.account_balance_wallet,
+                LucideIcons.wallet,
                 color: Constant.limeAccent,
                 size: 36,
               ),
@@ -285,7 +285,7 @@ class _HomeViewState extends State<HomeView> {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.arrow_downward,
+                    LucideIcons.arrowDown,
                     color: Constant.incomeGreenAccent,
                     size: 20,
                   ),
@@ -337,7 +337,7 @@ class _HomeViewState extends State<HomeView> {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.arrow_upward,
+                    LucideIcons.arrowUp,
                     color: Constant.expenseRed,
                     size: 20,
                   ),
@@ -437,7 +437,7 @@ class _HomeViewState extends State<HomeView> {
                 },
               ),
               _buildNavItem(
-                icon: LucideIcons.wallet,
+                icon: LucideIcons.walletMinimal,
                 label: "Dompet",
                 index: 1,
                 onTap: () {
@@ -502,7 +502,11 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.add, size: 28, color: Colors.white),
+                child: const Icon(
+                  LucideIcons.plus,
+                  size: 28,
+                  color: Colors.white,
+                ),
               )
             else
               Icon(icon, color: Constant.textWhite, size: 32),

@@ -4,6 +4,7 @@ import 'package:danamoo/core/utils/wallet_utils.dart';
 import 'package:danamoo/data/models/category_model.dart';
 import 'package:danamoo/features/wallet/provider/wallet_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/utils/utils.dart';
@@ -237,7 +238,7 @@ class _DetailHistoryViewState extends State<DetailHistoryView> {
       appBar: CustomAppBar.standard(
         title: _isEditing ? 'Edit Transaksi' : 'Detail Transaksi',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: () => CustomNavigator.pop(context),
         ),
         backgroundColor: Constant.bgNeutral,

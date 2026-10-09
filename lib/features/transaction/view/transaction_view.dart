@@ -167,7 +167,7 @@ class _TransactionViewState extends State<TransactionView> {
       appBar: CustomAppBar.standard(
         title: 'Transaksi',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(LucideIcons.chevronLeft),
           onPressed: () => CustomNavigator.pop(context),
         ),
         backgroundColor: Constant.bgNeutral,
