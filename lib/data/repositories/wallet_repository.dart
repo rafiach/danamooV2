@@ -95,9 +95,6 @@ class WalletRepository {
 
   Future<void> deleteAll(String userId) => _local.deleteAll(userId);
 
-  /// Saldo tiap wallet = saldo awal + income - expense.
-  /// Transaksi yang menunjuk wallet tak dikenal dihitung ke wallet utama.
-  /// TODO (step transfer): tambah case transfer.
   Map<String, double> calculateBalances(
     List<WalletModel> wallets,
     List<TransactionModel> txs,

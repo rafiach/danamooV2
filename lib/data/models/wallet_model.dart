@@ -4,8 +4,8 @@ class WalletModel {
   final String id;
   final String userId;
   final String name;
-  final String iconKey; // key ikon, dipetakan di UI nanti
-  final int colorValue; // Color.value
+  final String iconKey;
+  final int colorValue;
   final double initialBalance;
   final DateTime createdAt;
   final DateTime updatedAt;

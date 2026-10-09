@@ -47,7 +47,14 @@ class TransactionItem {
 class WalletItem {
   final WalletModel wallet;
   final double balance;
-  WalletItem({required this.wallet, required this.balance});
+  final double income;
+  final double expense;
+  WalletItem({
+    required this.wallet,
+    required this.balance,
+    this.income = 0,
+    this.expense = 0,
+  });
 }
 
 class HomeModel {

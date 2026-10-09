@@ -1,3 +1,5 @@
+import 'package:danamoo/features/home/view/widget/hero_wallet_card.dart';
+import 'package:danamoo/features/home/view/widget/hero_wallet_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -49,25 +51,13 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  void cekId() async {
-    final storage = await StorageService.getInstance();
-    final user = storage.getUser();
-    if (user != null) {
-      final walletSource = WalletLocalSource();
-      final wallets = await walletSource.getAll(user['id']);
-      for (final w in wallets) {
-        print('Wallet ID: ${w.id}, Name: ${w.name}');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final homeProvider = context.watch<HomeProvider>();
     final homeData = homeProvider.homeModel;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light, // ikon status bar putih
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         bottomNavigationBar: SafeArea(child: _buildFloatingBottomBar()),
         backgroundColor: Constant.bgNeutral,
@@ -107,21 +97,29 @@ class _HomeViewState extends State<HomeView> {
                                   height: 32,
                                   fit: BoxFit.contain,
                                 ),
-                                // Text(
-                                //   "Intip keuanganmu hari ini !",
-                                //   style: Constant.bodyMedium.copyWith(
-                                //     color: Colors.white70,
-                                //     fontWeight: FontWeight.w500,
-                                //   ),
-                                // ),
                               ],
+                            ),
+
+                            GestureDetector(
+                              onTap: () => CustomNavigator.push(
+                                context,
+                                const ProfileView(),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Icon(
+                                  LucideIcons.circleUserRound400,
+                                  size: 42,
+                                  color: Constant.limeAccent,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 32),
-                        _buildHeroBalance(homeData),
-                        const SizedBox(height: 16),
-                        _buildCashFlow(homeData),
+                        HeroWalletCarousel(data: homeData),
                       ],
                     ),
                   ),
@@ -132,8 +130,6 @@ class _HomeViewState extends State<HomeView> {
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            _buildWalletSection(homeData),
-                            const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -391,9 +387,9 @@ class _HomeViewState extends State<HomeView> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.receipt_long_outlined,
+              LucideIcons.fileX,
               color: Constant.incomeGreenAccentDark,
-              size: 40,
+              size: 48,
             ),
           ),
           const SizedBox(height: 16),
@@ -433,7 +429,7 @@ class _HomeViewState extends State<HomeView> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: Icons.receipt_long_outlined,
+                icon: LucideIcons.notebookPen,
                 label: "Transaksi",
                 index: 0,
                 onTap: () {
@@ -441,27 +437,27 @@ class _HomeViewState extends State<HomeView> {
                 },
               ),
               _buildNavItem(
-                icon: Icons.history,
-                label: "Riwayat",
+                icon: LucideIcons.wallet,
+                label: "Dompet",
                 index: 1,
+                onTap: () {
+                  CustomNavigator.push(context, const WalletView());
+                },
+              ),
+              _buildNavItem(
+                icon: LucideIcons.fileClock,
+                label: "Riwayat",
+                index: 2,
                 onTap: () {
                   CustomNavigator.push(context, const HistoryView());
                 },
               ),
               _buildNavItem(
-                icon: Icons.analytics_outlined,
+                icon: LucideIcons.chartPie,
                 label: "Insight",
-                index: 2,
-                onTap: () {
-                  CustomNavigator.push(context, const InsightView());
-                },
-              ),
-              _buildNavItem(
-                icon: Icons.person,
-                label: "Profil",
                 index: 3,
                 onTap: () {
-                  CustomNavigator.push(context, const ProfileView());
+                  CustomNavigator.push(context, const InsightView());
                 },
               ),
             ],

@@ -56,9 +56,27 @@ class HomeProvider extends ChangeNotifier {
         transactions,
       );
       final balance = balances.values.fold<double>(0, (a, b) => a + b);
-      final walletItems = wallets
-          .map((w) => WalletItem(wallet: w, balance: balances[w.id] ?? 0))
-          .toList();
+      // sesudah
+      String resolveWallet(String? id) =>
+          (id != null && balances.containsKey(id)) ? id : WalletModel.mainId;
+
+      final walletItems = wallets.map((w) {
+        final txs = transactions.where(
+          (t) => resolveWallet(t.walletId) == w.id,
+        );
+        return WalletItem(
+          wallet: w,
+          balance: balances[w.id] ?? 0,
+          income: _transactionRepository.calculateTotal(
+            txs.toList(),
+            TransactionType.income,
+          ),
+          expense: _transactionRepository.calculateTotal(
+            txs.toList(),
+            TransactionType.expense,
+          ),
+        );
+      }).toList();
 
       // Filter transaksi hari ini
       final now = DateTime.now();

@@ -1,14 +1,11 @@
 import 'package:danamoo/data/models/wallet_model.dart';
-import 'package:danamoo/data/sources/local/transaction_local.dart';
 import 'package:danamoo/features/wallet/provider/wallet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
-
 import '../../../core/constants/constant.dart';
 import '../../../core/services/notification_service.dart';
-import '../../../core/services/storage_service.dart';
 import '../../../core/utils/currency_input_formatter.dart';
 import '../../../core/utils/utils.dart';
 import '../../../core/utils/wallet_utils.dart';
@@ -40,31 +37,21 @@ class _TransactionViewState extends State<TransactionView> {
   String _selectedWalletId = WalletModel.mainId;
   String? _toWalletId;
 
+  late TransactionProvider _transactionProvider;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TransactionProvider>().loadCategories();
-      cekId();
     });
-  }
-
-  void cekId() async {
-    final storage = await StorageService.getInstance();
-    final user = storage.getUser();
-    if (user != null) {
-      final transactionSource = TransactionLocalSource();
-      final wallets = await transactionSource.getAll(user['id']);
-      for (final w in wallets) {
-        print('Wallet ID transaksi: ${w.walletId}, wallet: ${w.id}');
-      }
-    }
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _noteController.dispose();
+    _transactionProvider.reset();
     super.dispose();
   }
 

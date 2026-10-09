@@ -266,7 +266,7 @@ class _HistoryViewState extends State<HistoryView> {
       child: AnimatedContainer(
         duration: Constant.durationShort,
         height: 48,
-        width: 48,
+        constraints: const BoxConstraints(minWidth: 48),
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: Constant.surfaceDark,
